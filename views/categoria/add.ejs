@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Adicionar Categoria</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Adicionar Categoria</h2>
+
+    <form action="/categoria/add" method="POST" class="form-padrao">
+      <div class="form-group">
+        <label for="nome">Nome da Categoria:</label>
+        <input type="text" id="nome" name="nome" required />
+      </div>
+
+      <div class="botoes-centro">
+        <button type="submit" class="btn-salvar">💾 Salvar</button>
+      </div>
+    </form>
+
+    <div class="voltar-centro">
+      <a href="/categoria/lst" class="btn-voltar">↩ Voltar</a>
+    </div>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+</body>
+</html>

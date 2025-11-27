@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Produtos</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Lista de Produtos</h2>
+
+    <div class="top-bar">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Pesquisar produto..."
+          onkeyup="filtrarTabela()" />
+      </div>
+      <a href="/produto/add"><button>+ Novo Produto</button></a>
+    </div>
+
+    <table id="tabelaProdutos">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Preço</th>
+          <th>Categoria</th>
+          <th>Imagem</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% produtos.forEach(produto => { %>
+          <tr>
+            <td><%= produto.nome %></td>
+            <td><%= produto.descricao %></td>
+            <td>R$ <%= produto.preco.toFixed(2) %></td>
+            <td><%= produto.categoria ? produto.categoria.nome : '' %></td>
+            <td>
+  <% if (produto.imagemBase64) { %>
+    <img 
+      src="data:<%= produto.mimetype %>;base64,<%= produto.imagemBase64 %>" 
+      width="80"
+      style="border-radius: 5px; border: 1px solid #ccc"
+    />
+  <% } else { %>
+    <span>Sem imagem</span>
+  <% } %>
+</td>
+
+            <td>
+              <div class="action-buttons">
+                <a href="/produto/edt/<%= produto._id %>" class="edit">Editar</a>
+                <a href="/produto/del/<%= produto._id %>" class="del"
+                   onclick="return confirm('Deseja realmente excluir este produto?')">
+                  Excluir
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <br />
+    <a href="/"><button>Voltar ao Início</button></a>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+
+  <script>
+    function filtrarTabela() {
+      const input = document.getElementById("searchInput");
+      const filtro = input.value.toLowerCase();
+      const linhas = document.querySelectorAll("#tabelaProdutos tbody tr");
+
+      linhas.forEach(linha => {
+        const texto = linha.innerText.toLowerCase();
+        linha.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>

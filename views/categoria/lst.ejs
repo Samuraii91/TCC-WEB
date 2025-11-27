@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Listagem de Categorias</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Categorias Cadastradas</h2>
+
+    <div class="top-bar">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Pesquisar categoria..."
+          onkeyup="filtrarTabela()" />
+      </div>
+      <a href="/categoria/add"><button>+ Nova Categoria</button></a>
+    </div>
+
+    <table id="tabelaCategorias">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% categorias.forEach(cat => { %>
+          <tr>
+            <td><%= cat.nome %></td>
+            <td>
+              <!-- Botões organizados em um container -->
+              <div class="action-buttons">
+                <a href="/categoria/edt/<%= cat._id %>" class="edit">Editar</a>
+                <a href="/categoria/del/<%= cat._id %>" class="del"
+                   onclick="return confirm('Deseja excluir esta categoria?')">
+                  Excluir
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <br />
+    <a href="/"><button>Voltar ao Início</button></a>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+
+  <script>
+    function filtrarTabela() {
+      const input = document.getElementById("searchInput");
+      const filtro = input.value.toLowerCase();
+      const linhas = document.querySelectorAll("#tabelaCategorias tbody tr");
+
+      linhas.forEach(linha => {
+        const texto = linha.innerText.toLowerCase();
+        linha.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>

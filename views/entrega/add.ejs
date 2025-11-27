@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Adicionar Entrega</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Adicionar Entrega</h2>
+
+    <form action="/entrega/add" method="POST" class="form-padrao">
+      <div class="form-group">
+        <label for="produto">Produto:</label>
+        <select id="produto" name="produto" required>
+          <% produtos.forEach(produto => { %>
+            <option value="<%= produto._id %>"><%= produto.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="cliente">Cliente:</label>
+        <input type="text" id="cliente" name="cliente" required />
+      </div>
+
+      <div class="form-group">
+        <label for="endereco">Endereço:</label>
+        <input type="text" id="endereco" name="endereco" required />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+          <option value="Pendente">Pendente</option>
+          <option value="Em rota">Em rota</option>
+          <option value="Entregue">Entregue</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="data">Data de Entrega:</label>
+        <input type="date" id="data" name="data" required />
+      </div>
+
+      <div class="botoes-centro">
+        <button type="submit" class="btn-salvar">💾 Adicionar</button>
+      </div>
+    </form>
+
+    <div class="voltar-centro">
+      <a href="/entrega/lst" class="btn-voltar">↩ Voltar</a>
+    </div>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+</body>
+</html>

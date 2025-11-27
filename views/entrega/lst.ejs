@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Entregas</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Lista de Entregas</h2>
+
+    <div class="top-bar">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Pesquisar entrega..."
+          onkeyup="filtrarTabela()" />
+      </div>
+      <a href="/entrega/add"><button>+ Nova Entrega</button></a>
+    </div>
+
+    <table id="tabelaEntregas">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Cliente</th>
+          <th>Endereço</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% entregas.forEach(entrega => { %>
+          <tr>
+            <td><%= entrega.produto ? entrega.produto.nome : '' %></td>
+            <td><%= entrega.cliente %></td>
+            <td><%= entrega.endereco %></td>
+            <td><%= entrega.status %></td>
+            <td><%= entrega.data ? new Date(entrega.data).toLocaleDateString() : '' %></td>
+            <td>
+              <!-- Botões organizados e estilizados -->
+              <div class="action-buttons">
+                <a href="/entrega/edt/<%= entrega._id %>" class="edit">Editar</a>
+                <a href="/entrega/del/<%= entrega._id %>" class="del"
+                   onclick="return confirm('Deseja excluir esta entrega?')">
+                  Excluir
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <br />
+    <a href="/"><button>Voltar ao Início</button></a>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+
+  <script>
+    function filtrarTabela() {
+      const input = document.getElementById("searchInput");
+      const filtro = input.value.toLowerCase();
+      const linhas = document.querySelectorAll("#tabelaEntregas tbody tr");
+
+      linhas.forEach(linha => {
+        const texto = linha.innerText.toLowerCase();
+        linha.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>

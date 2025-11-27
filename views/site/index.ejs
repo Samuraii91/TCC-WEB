@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Belém - Argamassa e Ferragem</title>
+    <link rel="stylesheet" href="/css/styleSite.css">
+</head>
+<body>
+<header class="topo">
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo-icon">📍</div>
+            <div>
+                <h1>Novo Belém</h1>
+                <p class="subtitulo">Argamassa e Ferragem</p>
+            </div>
+        </div>
+
+        <input type="checkbox" id="menu-toggle" class="menu-toggle">
+        <label for="menu-toggle" class="menu-mobile">☰</label>
+
+        <nav class="menu">
+            <a href="#servicos">Categorias</a>
+            <a href="#produtos">Produtos</a>
+            <a href="#contato">Contato</a>
+            <a href="#localizacao">Localização</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container hero-content">
+        <h2>Materiais de Qualidade para sua Obra</h2>
+        <p>Os melhores preços e atendimento personalizado</p>
+        <div class="hero-info">
+            <div class="info-item"><span class="icon">📞</span> (53) 991027296</div>
+            <div class="info-item"><span class="icon">✉️</span> profevinicius@gmail.com</div>
+            <div class="info-item"><span class="icon">🕐</span> Seg–Sex / Sáb</div>
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIAS -->
+<section id="servicos" class="secao">
+    <div class="container">
+        <h2 class="titulo-secao">Nossas Categorias</h2>
+        <div class="grid-servicos">
+
+            <% categorias.forEach(cat => { %>
+                <div class="card-servico">
+                    <img 
+                        src="<%= cat.imagem ? cat.imagem : 'https://via.placeholder.com/300x200?text=Sem+Imagem' %>" 
+                        alt="<%= cat.nome %>">
+
+                    <div class="card-content">
+                        <h3><%= cat.nome %></h3>
+                        <p><%= cat.descricao %></p>
+                    </div>
+                </div>
+            <% }) %>
+
+            <% if (categorias.length === 0) { %>
+                <p style="padding: 20px; font-size: 18px; text-align:center;">
+                    Nenhuma categoria cadastrada ainda.
+                </p>
+            <% } %>
+
+        </div>
+    </div>
+</section>
+
+<!-- PRODUTOS -->
+<section id="produtos" class="secao secao-cinza">
+    <div class="container">
+        <h2 class="titulo-secao">Nossos Produtos</h2>
+        <div class="grid-produtos">
+
+            <% produtos.forEach(prod => { %>
+                <div class="card-produto">
+                    <img 
+                        src="<%= prod.imagem ? prod.imagem : 'https://via.placeholder.com/300x200?text=Sem+Imagem' %>"
+                        alt="<%= prod.nome %>">
+
+                    <div class="produto-info">
+                        <h3><%= prod.nome %></h3>
+                        <p class="preco">R$ <%= prod.preco.toFixed(2) %></p>
+
+                        <% if (prod.categoria) { %>
+                            <p class="categoria">Categoria: <%= prod.categoria.nome %></p>
+                        <% } %>
+
+                        <a href="#contato" class="btn btn-azul">Solicitar Orçamento</a>
+                    </div>
+                </div>
+            <% }) %>
+
+            <% if (produtos.length === 0) { %>
+                <p style="padding: 20px; font-size: 18px; text-align:center;">
+                    Nenhum produto cadastrado ainda.
+                </p>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<!-- LOCALIZAÇÃO (mantido) -->
+<!-- ... resto do seu código sem alteração ... -->
+
+<footer class="rodape">
+    <div class="container">
+        <p>&copy; 2025 Novo Belém - Argamassa e Ferragem. Todos os direitos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>

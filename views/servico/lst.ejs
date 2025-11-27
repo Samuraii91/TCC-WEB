@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Serviços</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Lista de Serviços</h2>
+
+    <!-- 🔹 Barra superior (pesquisa + botão novo serviço) -->
+    <div class="top-bar">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Pesquisar serviço..."
+          onkeyup="filtrarTabela()" />
+      </div>
+
+      <div class="new-btn">
+        <a href="/servico/add"><button>+ Novo Serviço</button></a>
+      </div>
+    </div>
+
+    <!-- 🔹 Tabela de serviços -->
+    <table id="tabelaServicos">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Preço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% servicos.forEach(s => { %>
+          <tr>
+            <td><%= s.nome %></td>
+            <td><%= s.descricao %></td>
+            <td>R$ <%= s.preco != null ? s.preco.toFixed(2) : '0.00' %></td>
+            <td>
+              <div class="action-buttons">
+                <a href="/servico/edt/<%= s._id %>" class="edit">Editar</a>
+                <a href="/servico/del/<%= s._id %>" class="del"
+                   onclick="return confirm('Deseja realmente excluir este serviço?')">
+                  Excluir
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <br />
+    <div style="margin-top: 20px;">
+      <a href="/"><button>Voltar ao Início</button></a>
+    </div>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+
+  <script>
+    function filtrarTabela() {
+      const input = document.getElementById("searchInput");
+      const filtro = input.value.toLowerCase();
+      const linhas = document.querySelectorAll("#tabelaServicos tbody tr");
+
+      linhas.forEach(linha => {
+        const texto = linha.innerText.toLowerCase();
+        linha.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>
