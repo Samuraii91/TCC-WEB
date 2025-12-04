@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Adicionar ao Estoque</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Adicionar Estoque</h2>
+
+    <form action="/estoque/add" method="POST" class="form-padrao">
+
+      <div class="form-group">
+        <label for="produto">Produto:</label>
+        <select id="produto" name="produto" required>
+          <% produtos.forEach(p => { %>
+            <option value="<%= p._id %>"><%= p.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="categoria">Categoria:</label>
+        <select id="categoria" name="categoria" required>
+          <% categorias.forEach(cat => { %>
+            <option value="<%= cat._id %>"><%= cat.nome %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" id="quantidade" name="quantidade" required min="1" />
+      </div>
+
+      <div class="botoes-centro">
+        <button type="submit" class="btn-salvar">💾 Salvar</button>
+        <a href="/estoque/lst" class="btn-voltar">↩ Voltar</a>
+      </div>
+
+    </form>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Estoque</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Lista de Estoque</h2>
+
+    <div class="top-bar">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Pesquisar..."
+          onkeyup="filtrarTabela()" />
+      </div>
+      <a href="/estoque/add"><button>+ Novo Item</button></a>
+    </div>
+
+    <table id="tabelaEstoque">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Categoria</th>
+          <th>Quantidade</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% itens.forEach(item => { %>
+          <tr>
+            <td><%= item.produto ? item.produto.nome : '' %></td>
+            <td><%= item.categoria ? item.categoria.nome : '' %></td>
+            <td><%= item.quantidade %></td>
+
+            <td>
+              <div class="action-buttons">
+                <a href="/estoque/edt/<%= item._id %>" class="edit">Editar</a>
+                <a href="/estoque/del/<%= item._id %>" class="del"
+                   onclick="return confirm('Deseja realmente remover este item do estoque?')">
+                  Excluir
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <br />
+    <a href="/"><button>Voltar ao Início</button></a>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+
+  <script>
+    function filtrarTabela() {
+      const input = document.getElementById("searchInput");
+      const filtro = input.value.toLowerCase();
+      const linhas = document.querySelectorAll("#tabelaEstoque tbody tr");
+
+      linhas.forEach(linha => {
+        const texto = linha.innerText.toLowerCase();
+        linha.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>
