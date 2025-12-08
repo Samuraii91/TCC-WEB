@@ -29,6 +29,7 @@
           <th>Descrição</th>
           <th>Preço</th>
           <th>Categoria</th>
+          <th>Quantidade</th> <!-- Nova coluna -->
           <th>Imagem</th>
           <th>Ações</th>
         </tr>
@@ -40,17 +41,21 @@
             <td><%= produto.descricao %></td>
             <td>R$ <%= produto.preco.toFixed(2) %></td>
             <td><%= produto.categoria ? produto.categoria.nome : '' %></td>
+
+            <!-- Quantidade exibida -->
+            <td><%= produto.quantidade %></td>
+
             <td>
-  <% if (produto.imagemBase64) { %>
-    <img 
-      src="data:<%= produto.mimetype %>;base64,<%= produto.imagemBase64 %>" 
-      width="80"
-      style="border-radius: 5px; border: 1px solid #ccc"
-    />
-  <% } else { %>
-    <span>Sem imagem</span>
-  <% } %>
-</td>
+              <% if (produto.imagemBase64) { %>
+                <img 
+                  src="data:<%= produto.mimetype %>;base64,<%= produto.imagemBase64 %>" 
+                  width="80"
+                  style="border-radius: 5px; border: 1px solid #ccc"
+                />
+              <% } else { %>
+                <span>Sem imagem</span>
+              <% } %>
+            </td>
 
             <td>
               <div class="action-buttons">

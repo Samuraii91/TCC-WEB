@@ -17,6 +17,9 @@ const ProdutoSchema = new mongoose.Schema({
   // Tipo do arquivo (image/png, image/jpeg, etc)
   mimetype: { type: String, required: false },
 
+  // Quantidade em estoque
+  quantidade: { type: Number, required: true, default: 0 }
+
 }, { timestamps: true });
 
 export default mongoose.model("Produto", ProdutoSchema);

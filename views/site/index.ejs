@@ -112,8 +112,8 @@
                             <p class="categoria">Categoria: <%= prod.categoria.nome %></p>
                         <% } %>
 
-                        <% if (prod.estoque) { %>
-                            <p class="estoque">Estoque: <%= prod.estoque.quantidade %></p>
+                        <% if (prod.quantidade) { %>
+                            <p class="quantidade">Quantidade em Estoque: <%= prod.quantidade %></p>
                         <% } %>
 
                         <a href="#contato" class="btn btn-azul">Solicitar Orçamento</a>
@@ -214,6 +214,11 @@
         </select>
     </div>
 
+    <div class="form-group">
+        <label for="quantidade">Quantidade Desejada</label>
+        <input type="number" id="quantidade" name="quantidade" placeholder="Quantidade" min="1">
+    </div>
+    
     <div class="form-group">
         <label for="mensagem">Mensagem *</label>
         <textarea id="mensagem" name="mensagem" placeholder="Descreva sua necessidade ou dúvida" rows="5" required></textarea>

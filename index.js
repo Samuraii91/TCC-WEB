@@ -11,7 +11,6 @@ import entregaRoutes from './routes/entregaRoutes.js';
 import servicoRoutes from './routes/servicoRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import siteRoutes from './routes/route.js';
-import estoqueRoutes from './routes/estoqueRoutes.js';
 
 const app = express();
 
@@ -51,7 +50,6 @@ app.use('/', entregaRoutes);     // Entregas
 app.use('/', servicoRoutes);     // Serviços
 app.use('/', authRoutes);        // Autenticação
 app.use('/', siteRoutes);        // Rotas do site
-app.use('/', estoqueRoutes);     // Estoque
 // Página inicial redireciona para login
 app.get('/', (req, res) => {
   res.redirect('/login');
