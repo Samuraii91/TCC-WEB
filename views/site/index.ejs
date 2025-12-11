@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- Cabeçalho -->
 <header class="topo">
     <div class="container">
         <div class="logo-container">
@@ -31,49 +30,33 @@
         </nav>
     </div>
 
-    <!-- 🔍 BARRA DE PESQUISA ADICIONADA AQUI -->
     <div class="container" style="padding: 10px 0;">
         <input 
             type="text" 
             id="pesquisa" 
-            placeholder="🔍 Pesquisar produtos ou categorias..." 
+            placeholder="🔍 Pesquisar categorias" 
             style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc;"
         >
     </div>
 </header>
 
-
-<!-- Hero Section -->
 <section class="hero">
     <div class="container hero-content">
         <h2>Materiais de Qualidade para sua Obra</h2>
         <p>Os melhores preços e atendimento personalizado</p>
         <div class="hero-info">
-            <div class="info-item">
-                <span class="icon">📞</span>
-                <span>(53) 991027296</span>
-            </div>
-            <div class="info-item">
-                <span class="icon">✉️</span>
-                <span>profevinicius@gmail.com</span>
-            </div>
-            <div class="info-item">
-                <span class="icon">🕐</span>
-                <span>Seg-Sex: (8h-12h) e (13:30-17:30h) | Sáb: 8h-12h</span>
-            </div>
+            <div class="info-item"><span class="icon">📞</span><span>(53) 991027296</span></div>
+            <div class="info-item"><span class="icon">✉️</span><span>profevinicius@gmail.com</span></div>
+            <div class="info-item"><span class="icon">🕐</span><span>Seg-Sex: (8h-12h) e (13:30-17:30h) | Sáb: 8h-12h</span></div>
         </div>
     </div>
 </section>
 
-<!-- ============================== -->
-<!-- CATEGORIAS DINÂMICAS          -->
-<!-- ============================== -->
 <section id="servicos" class="secao">
     <div class="container">
         <h2 class="titulo-secao">Nossas Categorias</h2>
 
-        <div class="grid-servicos">
-
+        <div class="grid-servicos" id="listaCategorias">
             <% categorias.forEach(cat => { %>
                 <div class="card-servico">
                    <img 
@@ -96,13 +79,15 @@
                     Nenhuma categoria cadastrada ainda.
                 </p>
             <% } %>
+        </div>
 
+        <div style="text-align:center; margin-top: 20px;">
+            <button id="btnVerMaisCategorias" class="btn btn-azul">Ver mais categorias</button>
+            <button id="btnVerMenosCategorias" class="btn btn-azul" style="display:none;">Mostrar menos</button>
         </div>
     </div>
 </section>
 
-
-<!-- PRODUTOS -->
 <section id="produtos" class="secao secao-cinza">
     <div class="container">
         <h2 class="titulo-secao">Nossos Produtos</h2>
@@ -138,16 +123,14 @@
             <% } %>
         </div>
 
-        <!-- 🔵 BOTÃO VER MAIS ADICIONADO AQUI -->
         <div style="text-align:center; margin-top: 20px;">
             <button id="btnVerMais" class="btn btn-azul">Ver mais produtos</button>
+            <button id="btnVerMenos" class="btn btn-azul" style="display:none;">Mostrar menos</button>
         </div>
 
     </div>
 </section>
 
-
-<!-- LOCALIZAÇÃO -->
 <section id="localizacao" class="secao">
     <div class="container">
         <h2 class="titulo-secao">Nossa Localização</h2>
@@ -155,10 +138,7 @@
 
             <div class="card-localizacao">
                 <div class="localizacao-info">
-                    <div class="info-header">
-                        <span class="icon-grande">📍</span>
-                        <h3>Endereço</h3>
-                    </div>
+                    <div class="info-header"><span class="icon-grande">📍</span><h3>Endereço</h3></div>
                     <p>
                         Rua Próspero Ambrósio Pesce, 220<br>
                         Bairro Passo do Príncipe<br>
@@ -170,7 +150,7 @@
                 <div class="horario-info">
                     <h4>Horário de Funcionamento</h4>
                     <p>Segunda a Sexta: (8h-12h) e (13:30-17:30h)</p>
-                    <p>Sábado: Sáb: 8h-12h</p>
+                    <p>Sábado: 8h-12h</p>
                     <p>Domingo: Fechado</p>
                 </div>
             </div>
@@ -178,11 +158,7 @@
             <div class="mapa">
                 <iframe 
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3292.5216540441243!2d-54.107494729870226!3d-31.344687084025722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9506750d27fd612d%3A0xf778add48b04070!2sArgamassa%20e%20Material%20de%20Constru%C3%A7%C3%A3o%20Novo%20Bel%C3%A9m!5e0!3m2!1spt-BR!2sbr!4v1763379837572!5m2!1spt-BR!2sbr"
-                    width="100%"
-                    height="400"
-                    style="border:0; border-radius: 12px;"
-                    allowfullscreen=""
-                    loading="lazy">
+                    width="100%" height="400" style="border:0; border-radius: 12px;" loading="lazy">
                 </iframe>
             </div>
 
@@ -190,7 +166,6 @@
     </div>
 </section>
 
-<!-- CONTATO -->
 <section id="contato" class="secao secao-cinza">
     <div class="container">
         <h2 class="titulo-secao">Entre em Contato</h2>
@@ -216,8 +191,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="produto">Produto de Interesse</label>
-                    <select id="produto" name="produto">
+                    <label for="produto">Produto de Interesse *</label>
+                    <select id="produto" name="produto" required>
                         <option value="">Selecione um produto</option>
                         <% produtos.forEach(prod => { %>
                             <option value="<%= prod.nome %>">
@@ -228,13 +203,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="quantidade">Quantidade Desejada</label>
-                    <input type="number" id="quantidade" name="quantidade" min="1">
+                    <label for="quantidade">Quantidade Desejada *</label>
+                    <input type="number" id="quantidade" name="quantidade" min="1" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="mensagem">Mensagem *</label>
-                    <textarea id="mensagem" name="mensagem" rows="5" required></textarea>
+                    <label for="mensagem">Mensagem</label>
+                    <textarea id="mensagem" name="mensagem" rows="5"></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-azul">Enviar Mensagem</button>
@@ -243,7 +218,6 @@
     </div>
 </section>
 
-<!-- Rodapé -->
 <footer class="rodape">
     <div class="container">
         <p>&copy; 2025 Novo Belém - Argamassa e Ferragem. Todos os direitos reservados.</p>
@@ -251,81 +225,83 @@
     </div>
 </footer>
 
-<!-- 🔥 SCRIPTS AQUI -->
 <script>
-    // ----- FUNÇÃO PARA REMOVER ACENTOS -----
-    function removerAcentos(texto) {
-        if (!texto) return "";
-        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    }
+function removerAcentos(texto) {
+    if (!texto) return "";
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
 
-    // ----- FILTRAR PRODUTOS E CATEGORIAS (IGNORA MAIÚSCULAS/ACENTOS) -----
-    const inputPesquisa = document.getElementById("pesquisa");
+const inputPesquisa = document.getElementById("pesquisa");
 
-    inputPesquisa.addEventListener("input", function () {
-        const termoRaw = this.value || "";
-        const termo = removerAcentos(termoRaw.toLowerCase().trim());
+inputPesquisa.addEventListener("input", function () {
+    const termo = removerAcentos(this.value.toLowerCase().trim());
 
-        // Se campo vazio, mostra tudo
-        if (termo === "") {
-            document.querySelectorAll(".card-servico").forEach(card => card.style.display = "");
-            document.querySelectorAll(".card-produto").forEach(card => card.style.display = "");
-            return;
-        }
-
-        // Filtra categorias (buscar por nome e descrição)
-        document.querySelectorAll(".card-servico").forEach(card => {
-            const h3 = card.querySelector("h3");
-            const p = card.querySelector("p");
-            const nome = removerAcentos(h3 ? h3.textContent.toLowerCase().trim() : "");
-            const descricao = removerAcentos(p ? p.textContent.toLowerCase().trim() : "");
-            const encontrou = nome.includes(termo) || descricao.includes(termo);
-            card.style.display = encontrou ? "" : "none";
-        });
-
-        // Filtra produtos (buscar por nome e categoria exibida)
-        document.querySelectorAll(".card-produto").forEach(card => {
-            const h3 = card.querySelector("h3");
-            const cat = card.querySelector(".categoria"); // contém "Categoria: X"
-            const nome = removerAcentos(h3 ? h3.textContent.toLowerCase().trim() : "");
-            let nomeCategoria = "";
-            if (cat) {
-                // extrai só o nome da categoria (remove "Categoria:")
-                nomeCategoria = cat.textContent.replace(/Categoria:\s*/i, "");
-                nomeCategoria = removerAcentos(nomeCategoria.toLowerCase().trim());
-            }
-            const encontrou = nome.includes(termo) || nomeCategoria.includes(termo);
-            card.style.display = encontrou ? "" : "none";
-        });
+    document.querySelectorAll(".card-servico").forEach(card => {
+        const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
+        const desc = removerAcentos(card.querySelector("p").textContent.toLowerCase());
+        card.style.display = (nome.includes(termo) || desc.includes(termo)) ? "" : "none";
     });
-</script>
 
-<script>
-    // ----- VER MAIS PRODUTOS -----
-    const produtos = document.querySelectorAll(".card-produto");
-    let produtosVisiveis = 5;
+    document.querySelectorAll(".card-produto").forEach(card => {
+        const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
+        let categoria = "";
+        const catEl = card.querySelector(".categoria");
+        if (catEl) categoria = removerAcentos(catEl.textContent.replace(/Categoria:\s*/i, "").toLowerCase());
+        card.style.display = (nome.includes(termo) || categoria.includes(termo)) ? "" : "none";
+    });
+});
 
-    function atualizarVisibilidade() {
-        produtos.forEach((p, i) => {
-            p.style.display = i < produtosVisiveis ? "block" : "none";
-        });
 
-        if (produtosVisiveis >= produtos.length) {
-            const btn = document.getElementById("btnVerMais");
-            if (btn) btn.style.display = "none";
-        }
-    }
+const produtos = document.querySelectorAll(".card-produto");
+let produtosVisiveis = 4;
 
-    // inicial
-    atualizarVisibilidade();
+function atualizarProdutos() {
+    produtos.forEach((p, i) => p.style.display = i < produtosVisiveis ? "block" : "none");
 
-    const btnVerMais = document.getElementById("btnVerMais");
-    if (btnVerMais) {
-        btnVerMais.addEventListener("click", () => {
-            produtosVisiveis += 5;
-            atualizarVisibilidade();
-        });
-    }
+    document.getElementById("btnVerMais").style.display =
+        produtosVisiveis >= produtos.length ? "none" : "inline-block";
+
+    document.getElementById("btnVerMenos").style.display =
+        produtosVisiveis > 4 ? "inline-block" : "none";
+}
+
+atualizarProdutos();
+
+document.getElementById("btnVerMais").addEventListener("click", () => {
+    produtosVisiveis += 4;
+    atualizarProdutos();
+});
+
+document.getElementById("btnVerMenos").addEventListener("click", () => {
+    produtosVisiveis = 4;
+    atualizarProdutos();
+});
+
+
+const categoriasLista = document.querySelectorAll(".card-servico");
+let categoriasVisiveis = 3;
+
+function atualizarCategorias() {
+    categoriasLista.forEach((c, i) => c.style.display = i < categoriasVisiveis ? "block" : "none");
+
+    document.getElementById("btnVerMaisCategorias").style.display =
+        categoriasVisiveis >= categoriasLista.length ? "none" : "inline-block";
+
+    document.getElementById("btnVerMenosCategorias").style.display =
+        categoriasVisiveis > 3 ? "inline-block" : "none";
+}
+
+atualizarCategorias();
+
+document.getElementById("btnVerMaisCategorias").addEventListener("click", () => {
+    categoriasVisiveis += 3;
+    atualizarCategorias();
+});
+
+document.getElementById("btnVerMenosCategorias").addEventListener("click", () => {
+    categoriasVisiveis = 3;
+    atualizarCategorias();
+});
 </script>
 
 </body>
