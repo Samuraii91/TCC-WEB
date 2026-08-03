@@ -2,9 +2,13 @@ import express from 'express'
 const router = express.Router()
 
 import ServicoController from '../controllers/ServicoController.js'
+import { verificarLogin } from '../middlewares/auth.js'
 const controle = new ServicoController()
 
 const caminhobase = 'servico/'
+
+// 🔒 Todas as rotas de serviço exigem login
+router.use("/servico", verificarLogin)
 
 // Formulário de adicionar
 router.get('/' + caminhobase + 'add', controle.openAdd)

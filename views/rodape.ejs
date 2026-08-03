@@ -1,6 +1,32 @@
-    </main>
-    <footer class="rodape">
-        <p>&copy; 2025 - Material de Construção Novo Belém</p>
-    </footer>
+            </main>
+
+            <footer class="admin-footer">
+                <p>&copy; 2026 - Novo Belém Argamassa e Ferragem</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Marca como ativo o item do menu correspondente à página atual
+        (function () {
+            var caminho = window.location.pathname;
+            var ativo = null;
+            document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+                var chave = link.getAttribute('data-nav');
+                if (chave && caminho.indexOf(chave) === 0) {
+                    link.classList.add('active');
+                    ativo = link;
+                }
+            });
+
+            // Preenche o título da topbar com o nome da página atual
+            var tituloTopbar = document.getElementById('topbarPage');
+            if (ativo && tituloTopbar) {
+                var texto = ativo.lastChild ? ativo.lastChild.textContent.trim() : '';
+                tituloTopbar.textContent = texto || ativo.textContent.trim();
+            }
+        })();
+    </script>
 </body>
+
 </html>

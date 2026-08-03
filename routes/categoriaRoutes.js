@@ -1,10 +1,14 @@
 import express from "express";
 import multer from "multer";
 import CategoriaController from "../controllers/CategoriaController.js";
+import { verificarLogin } from "../middlewares/auth.js";
 
 const router = express.Router();
 const controle = new CategoriaController();
 const upload = multer(); // ← NECESSÁRIO para req.file funcionar
+
+// 🔒 Todas as rotas de categoria exigem login
+router.use("/categoria", verificarLogin);
 
 // Caminho base
 const caminhobase = "categoria/";

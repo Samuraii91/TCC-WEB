@@ -3,21 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Material de Construção Novo Belém</title>
-    <link rel="stylesheet" href="/public/style.css">
+    <title>Painel Administrativo - Novo Belém</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <header class="topo">
-        <div class="logo-container">
-             <h1>Material de Construção Novo Belém</h1>
-        </div>
-        <nav class="menu">
-            <a href="/produto/lst">Produtos</a>
-            <a href="/servico/lst">Serviços</a>
-            <a href="/entrega/lst">Entregas</a>
-            <a href="/categoria/lst">Categoria</a>
-            <a href="/register">Registrar</a>
-            <a href="/login">Logout</a>
-        </nav>
-    </header>
-    <main class="conteudo">
+    <div class="admin-wrapper">
+        <input type="checkbox" id="sidebar-toggle" class="sidebar-toggle-checkbox">
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/img/logo.png" alt="Logo" class="sidebar-logo">
+                <div class="sidebar-titulo">
+                    <strong>Novo Belém</strong>
+                    <span>Painel Administrativo</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" data-nav="/dashboard"><span class="icone">📊</span> Dashboard</a>
+                <a href="/produto/lst" data-nav="/produto"><span class="icone">📦</span> Produtos</a>
+                <a href="/categoria/lst" data-nav="/categoria"><span class="icone">🗂️</span> Categorias</a>
+                <a href="/servico/lst" data-nav="/servico"><span class="icone">🛠️</span> Serviços</a>
+                <a href="/entrega/lst" data-nav="/entrega"><span class="icone">🚚</span> Entregas</a>
+                <a href="/register" data-nav="/register"><span class="icone">👤</span> Novo Usuário</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/site" target="_blank" class="sidebar-link-secundario"><span class="icone">🌐</span> Ver
+                    site</a>
+                <a href="/logout" class="sidebar-link-sair"><span class="icone">🚪</span> Sair</a>
+            </div>
+        </aside>
+
+        <label for="sidebar-toggle" class="sidebar-overlay"></label>
+
+            <div class="admin-content">
+                <header class="admin-topbar">
+                    <label for="sidebar-toggle" class="menu-mobile-btn">☰</label>
+                    <div class="topbar-brand">
+                        <img src="/img/logo.png" alt="Logo" class="topbar-logo">
+                        <div>
+                            <strong>Novo Belém</strong>
+                            <span>Painel Administrativo</span>
+                        </div>
+                    </div>
+                    <span class="topbar-titulo" id="topbarPage">Painel</span>
+                    <div class="topbar-acoes">
+                        <% if (typeof usuarioNome !== 'undefined' && usuarioNome) { %>
+                            <span class="topbar-usuario">👤 <strong><%= usuarioNome %></strong></span>
+                        <% } %>
+                        <a href="/site" target="_blank" class="topbar-link">Ver site</a>
+                        <a href="/logout" class="topbar-sair">Sair</a>
+                    </div>
+                </header>
+
+                <main class="conteudo">

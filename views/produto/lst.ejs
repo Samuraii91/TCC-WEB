@@ -36,14 +36,20 @@
       </thead>
       <tbody>
         <% produtos.forEach(produto => { %>
-          <tr>
+          <tr class="<%= produto.quantidade <= 5 ? 'linha-alerta' : '' %>">
             <td><%= produto.nome %></td>
             <td><%= produto.descricao %></td>
             <td>R$ <%= produto.preco.toFixed(2) %></td>
             <td><%= produto.categoria ? produto.categoria.nome : '' %></td>
 
-            <!-- Quantidade exibida -->
-            <td><%= produto.quantidade %></td>
+            <!-- Quantidade exibida, com alerta de estoque baixo -->
+            <td>
+              <% if (produto.quantidade <= 5) { %>
+                <span class="badge badge-estoque-baixo">⚠ <%= produto.quantidade %></span>
+              <% } else { %>
+                <span class="badge badge-estoque-ok"><%= produto.quantidade %></span>
+              <% } %>
+            </td>
 
             <td>
               <% if (produto.imagemBase64) { %>

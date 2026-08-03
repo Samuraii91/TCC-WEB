@@ -50,8 +50,11 @@ app.use('/', entregaRoutes);     // Entregas
 app.use('/', servicoRoutes);     // Serviços
 app.use('/', authRoutes);        // Autenticação
 app.use('/', siteRoutes);        // Rotas do site
-// Página inicial redireciona para login
+// Página inicial: se já estiver logado, vai para o painel; senão, para o login
 app.get('/', (req, res) => {
+  if (req.session.usuario) {
+    return res.redirect('/dashboard');
+  }
   res.redirect('/login');
 });
 

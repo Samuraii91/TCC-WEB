@@ -71,8 +71,8 @@ export default class AuthController {
         email: usuario.email,
       };
 
-      // 🔹 Redireciona para a página principal
-      res.redirect("/");
+      // 🔹 Redireciona para o painel administrativo
+      res.redirect("/dashboard");
     } catch (err) {
       console.error("Erro no login:", err);
       res.render("login", {

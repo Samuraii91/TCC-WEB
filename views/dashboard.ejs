@@ -1,0 +1,202 @@
+<%- include('cabecalho.ejs') %>
+
+  <section class="hero-bemvindo">
+    <div>
+      <h2>Olá, <span><%= usuarioNome || 'Administrador' %></span> 👋</h2>
+      <p>Veja como está o seu negócio hoje.</p>
+    </div>
+    <div class="hero-data">
+      <span class="hero-data-icone">📅</span>
+      <strong id="dataHoje"></strong>
+    </div>
+  </section>
+
+  <div class="stats-grid">
+    <a href="/produto/lst" class="stat-card produtos">
+      <div class="stat-icone">📦</div>
+      <div>
+        <div class="stat-numero"><%= totalProdutos %></div>
+        <div class="stat-label">Produtos cadastrados</div>
+      </div>
+    </a>
+
+    <a href="/categoria/lst" class="stat-card categorias">
+      <div class="stat-icone">🗂️</div>
+      <div>
+        <div class="stat-numero"><%= totalCategorias %></div>
+        <div class="stat-label">Categorias</div>
+      </div>
+    </a>
+
+    <a href="/servico/lst" class="stat-card servicos">
+      <div class="stat-icone">🛠️</div>
+      <div>
+        <div class="stat-numero"><%= totalServicos %></div>
+        <div class="stat-label">Serviços</div>
+      </div>
+    </a>
+
+    <a href="/entrega/lst" class="stat-card entregas">
+      <div class="stat-icone">🚚</div>
+      <div>
+        <div class="stat-numero"><%= totalEntregas %></div>
+        <div class="stat-label">Entregas no total</div>
+      </div>
+    </a>
+
+    <a href="/entrega/lst" class="stat-card pendentes">
+      <div class="stat-icone">⏳</div>
+      <div>
+        <div class="stat-numero"><%= entregasPendentes %></div>
+        <div class="stat-label">Entregas pendentes</div>
+      </div>
+    </a>
+
+    <a href="/produto/lst" class="stat-card alerta">
+      <div class="stat-icone">⚠️</div>
+      <div>
+        <div class="stat-numero"><%= produtosBaixoEstoque %></div>
+        <div class="stat-label">Produtos com estoque baixo</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="charts-grid">
+    <div class="painel-card">
+      <h3>Entregas por status</h3>
+      <div class="chart-wrapper">
+        <canvas id="graficoStatus"></canvas>
+      </div>
+    </div>
+
+    <div class="painel-card">
+      <h3>Produtos por categoria</h3>
+      <div class="chart-wrapper">
+        <canvas id="graficoCategoria"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-secoes">
+    <div class="painel-card">
+      <h3>Últimas entregas</h3>
+
+      <% if (ultimasEntregas.length===0) { %>
+        <p class="estado-vazio">Nenhuma entrega cadastrada ainda.</p>
+        <% } else { %>
+          <table class="tabela-mini">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Cliente</th>
+                <th>Status</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% ultimasEntregas.forEach(entrega=> { %>
+                <tr>
+                  <td>
+                    <%= entrega.produto ? entrega.produto.nome : '-' %>
+                  </td>
+                  <td>
+                    <%= entrega.cliente %>
+                  </td>
+                  <td>
+                    <% if (entrega.status==='Pendente' ) { %>
+                      <span class="badge badge-pendente">Pendente</span>
+                      <% } else if (entrega.status==='Em rota' ) { %>
+                        <span class="badge badge-em-rota">Em rota</span>
+                        <% } else { %>
+                          <span class="badge badge-entregue">Entregue</span>
+                          <% } %>
+                  </td>
+                  <td>
+                    <%= entrega.data ? new Date(entrega.data).toLocaleDateString('pt-BR') : '-' %>
+                  </td>
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
+          <% } %>
+    </div>
+
+    <div class="painel-card">
+      <h3>Ações rápidas</h3>
+      <div class="acoes-rapidas">
+        <a href="/produto/add" class="acao-rapida">📦 Novo produto</a>
+        <a href="/categoria/add" class="acao-rapida">🗂️ Nova categoria</a>
+        <a href="/servico/add" class="acao-rapida">🛠️ Novo serviço</a>
+        <a href="/entrega/add" class="acao-rapida">🚚 Nova entrega</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var hoje = document.getElementById('dataHoje');
+      if (hoje) {
+        hoje.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+      }
+    })();
+
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.color = '#93a2bd';
+      Chart.defaults.borderColor = '#1f2a47';
+      Chart.defaults.font.family = "'Poppins', 'Segoe UI', sans-serif";
+      Chart.defaults.font.size = 12;
+
+      var statusLabels = <%- JSON.stringify((typeof entregasStatus !== 'undefined' && entregasStatus && entregasStatus.labels) || []) %>;
+      var statusData = <%- JSON.stringify((typeof entregasStatus !== 'undefined' && entregasStatus && entregasStatus.data) || []) %>;
+      var catLabels = <%- JSON.stringify((typeof produtosCat !== 'undefined' && produtosCat && produtosCat.labels) || []) %>;
+      var catData = <%- JSON.stringify((typeof produtosCat !== 'undefined' && produtosCat && produtosCat.data) || []) %>;
+
+      new Chart(document.getElementById('graficoStatus'), {
+        type: 'doughnut',
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusData,
+            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'],
+            borderColor: '#151d36',
+            borderWidth: 3,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18 } }
+          }
+        }
+      });
+
+      new Chart(document.getElementById('graficoCategoria'), {
+        type: 'bar',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            label: 'Produtos',
+            data: catData,
+            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+            borderColor: '#818cf8',
+            borderWidth: 1,
+            borderRadius: 8,
+            maxBarThickness: 46
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  </script>
+
+  <%- include('rodape.ejs') %>

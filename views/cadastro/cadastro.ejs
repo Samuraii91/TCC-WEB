@@ -2,77 +2,145 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Cadastro de Usuário</title>
-  <link rel="stylesheet" href="/css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Usuário - Novo Belém</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      background: #f5f5f5;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #001d3d 0%, #003366 50%, #0055aa 100%);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08) 0, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(127, 192, 255, 0.12) 0, transparent 50%);
+      pointer-events: none;
     }
 
     .register-box {
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      width: 360px;
+      background: #ffffff;
+      padding: 44px 40px 38px;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      width: 380px;
+      max-width: 100%;
       text-align: center;
+      position: relative;
+    }
+
+    .register-logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      background: #fff;
+      border: 2px solid #e8f1ff;
+      border-radius: 16px;
+      padding: 6px;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 12px rgba(0, 43, 85, 0.12);
     }
 
     .register-box h2 {
-      margin-bottom: 25px;
-      color: #333;
+      margin-bottom: 6px;
+      color: #002b55;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .register-box p.subtitulo {
+      color: #5b6b82;
+      font-size: 14px;
+      margin-bottom: 24px;
     }
 
     .register-box input {
       width: 100%;
       margin: 10px 0;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      padding: 13px 14px;
+      border: 1px solid #e3e9f2;
+      border-radius: 10px;
       font-size: 15px;
+      box-sizing: border-box;
+      font-family: inherit;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .register-box input:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
     }
 
     .btn-cadastrar {
       width: 100%;
-      padding: 12px;
-      background: #007bff;
+      padding: 13px;
+      background: linear-gradient(135deg, #0055aa 0%, #0066cc 100%);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
       cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.3s;
+      margin-top: 12px;
+      box-shadow: 0 4px 12px rgba(0, 85, 170, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .btn-cadastrar:hover {
-      background: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 85, 170, 0.4);
     }
 
-    .msg-erro { 
-      color: red; 
-      font-size: 14px; 
-      margin-bottom: 10px; 
+    .msg-erro {
+      color: #d62828;
+      font-size: 14px;
+      margin-bottom: 10px;
+      background: #fdeaea;
+      border: 1px solid #f6caca;
+      padding: 10px 14px;
+      border-radius: 8px;
     }
 
-    .msg-sucesso { 
-      color: green; 
-      font-size: 14px; 
-      margin-bottom: 10px; 
+    .msg-sucesso {
+      color: #16a34a;
+      font-size: 14px;
+      margin-bottom: 10px;
+      background: #e6f9ee;
+      border: 1px solid #c4ecd3;
+      padding: 10px 14px;
+      border-radius: 8px;
     }
 
     .login-link {
-      margin-top: 15px;
+      margin-top: 18px;
       font-size: 14px;
+      color: #5b6b82;
     }
 
     .login-link a {
-      color: #007bff;
+      color: #0055aa;
       text-decoration: none;
+      font-weight: 600;
     }
 
     .login-link a:hover {
@@ -82,7 +150,9 @@
 </head>
 <body>
   <div class="register-box">
+    <img src="/img/logo.png" alt="Logo Novo Belém" class="register-logo">
     <h2>Cadastro de Usuário</h2>
+    <p class="subtitulo">Crie sua conta de acesso ao painel</p>
 
     <% if (erro) { %>
       <p class="msg-erro"><%= erro %></p>

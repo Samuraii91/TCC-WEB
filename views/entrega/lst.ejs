@@ -39,8 +39,16 @@
             <td><%= entrega.produto ? entrega.produto.nome : '' %></td>
             <td><%= entrega.cliente %></td>
             <td><%= entrega.endereco %></td>
-            <td><%= entrega.status %></td>
-            <td><%= entrega.data ? new Date(entrega.data).toLocaleDateString() : '' %></td>
+            <td>
+              <% if (entrega.status === 'Pendente') { %>
+                <span class="badge badge-pendente">Pendente</span>
+              <% } else if (entrega.status === 'Em rota') { %>
+                <span class="badge badge-em-rota">Em rota</span>
+              <% } else { %>
+                <span class="badge badge-entregue">Entregue</span>
+              <% } %>
+            </td>
+            <td><%= entrega.data ? new Date(entrega.data).toLocaleDateString('pt-BR') : '' %></td>
             <td>
               <!-- Botões organizados e estilizados -->
               <div class="action-buttons">

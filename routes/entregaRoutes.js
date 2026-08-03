@@ -2,9 +2,13 @@ import express from 'express'
 const router = express.Router()
 
 import EntregaController from '../controllers/EntregaController.js'
+import { verificarLogin } from '../middlewares/auth.js'
 const controle = new EntregaController()
 
 const caminhobase = 'entrega/'
+
+// 🔒 Todas as rotas de entrega exigem login
+router.use("/entrega", verificarLogin)
 
 // Adicionar
 router.get('/' + caminhobase + 'add', controle.openAdd)

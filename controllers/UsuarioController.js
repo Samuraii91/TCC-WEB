@@ -40,7 +40,7 @@ export default class UsuarioController {
       };
 
       // Redireciona após o login bem-sucedido
-      res.redirect("/produto/lst");
+      res.redirect("/dashboard");
     } catch (err) {
       console.error("Erro ao fazer login:", err);
       res.render("usuario/login", { erro: "Erro ao realizar login." });

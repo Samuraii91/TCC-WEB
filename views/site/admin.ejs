@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Novo Belém</title>
+  <title>Área Administrativa - Novo Belém</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
   <style>
     * {
       margin: 0;
@@ -111,6 +112,10 @@
       box-shadow: 0 8px 20px rgba(0, 85, 170, 0.4);
     }
 
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
     .msg-erro {
       color: #d62828;
       font-size: 14px;
@@ -121,19 +126,18 @@
       border-radius: 8px;
     }
 
-    .register-link {
+    .voltar-link {
       margin-top: 18px;
       font-size: 14px;
-      color: #5b6b82;
     }
 
-    .register-link a {
+    .voltar-link a {
       color: #0055aa;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 500;
     }
 
-    .register-link a:hover {
+    .voltar-link a:hover {
       text-decoration: underline;
     }
   </style>
@@ -141,20 +145,19 @@
 <body>
   <div class="login-box">
     <img src="/img/logo.png" alt="Logo Novo Belém" class="login-logo">
-    <h2>Login</h2>
-    <p class="subtitulo">Acesse o painel administrativo</p>
+    <h2>Área Administrativa</h2>
+    <p class="subtitulo">Digite a senha de acesso para continuar</p>
 
     <% if (erro) { %>
       <p class="msg-erro"><%= erro %></p>
     <% } %>
 
-    <form action="/login" method="POST">
-      <input type="email" name="email" placeholder="E-mail" required />
-      <input type="password" name="senha" placeholder="Senha" required />
+    <form action="/admin" method="POST">
+      <input type="password" name="senha" placeholder="Senha" required autofocus />
       <button type="submit" class="btn-login">Entrar</button>
     </form>
 
-    <p class="register-link">Não tem uma conta? <a href="/register">Cadastre-se</a></p>
+    <p class="voltar-link"><a href="/site">&larr; Voltar ao site</a></p>
   </div>
 </body>
 </html>

@@ -1,308 +1,456 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Novo Belém - Argamassa e Ferragem</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/styleSite.css">
 </head>
+
 <body>
 
-<header class="topo">
-    <div class="container">
-        <div class="logo-container">
-            <img src="/img/logo.png" class="logo-icon" alt="Logo Novo Belém">
-            <div class="logo-textos">
-                <h1>Novo Belém</h1>
-                <span class="subtitulo">Argamassa e Ferragem</span>
+    <% const normalizarNome = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); %>
+
+    <header class="topo" id="topo-site">
+        <div class="topo-linha">
+            <div class="logo-container">
+                <img src="/img/logo.png" class="logo-icon" alt="Logo Novo Belém">
+                <div class="logo-textos">
+                    <h1>Novo Belém</h1>
+                    <span class="subtitulo">Argamassa e Ferragem</span>
+                </div>
+            </div>
+
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-mobile"></label>
+
+            <nav class="menu">
+                <a href="#servicos">Categorias</a>
+                <a href="#produtos">Produtos</a>
+                <a href="#contato">Orçamento</a>
+                <a href="#localizacao">Localização</a>
+                <a href="https://wa.me/5553991027296?text=Ol%C3%A1!%20Quero%20saber%20mais!" target="_blank" rel="noopener">Whatsapp</a>
+            </nav>
+
+            <div class="header-acoes">
+                <button id="dark-mode-toggle" class="dark-mode-btn" type="button">Modo Escuro</button>
             </div>
         </div>
 
-        <input type="checkbox" id="menu-toggle" class="menu-toggle">
-        <label for="menu-toggle" class="menu-mobile">☰</label>
-
-        <nav class="menu">
-            <a href="#servicos">Categorias</a>
-            <a href="#produtos">Produtos</a>
-            <a href="#contato">Orçamento</a>
-            <a href="#localizacao">Localização</a>
-            <a href="https://wa.me/5553991027296?text=Olá!%20Quero%20saber%20mais!" target="_blank">Whatsapp</a>
-        </nav>
-    </div>
-
-    <div class="container" style="padding: 10px 0;">
-        <input 
-            type="text" 
-            id="pesquisa" 
-            placeholder="🔍 Pesquisar categorias" 
-            style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc;"
-        >
-    </div>
-</header>
-
-<section class="hero">
-    <div class="container hero-content">
-        <h2>Materiais de Qualidade para sua Obra</h2>
-        <p>Os melhores preços e atendimento personalizado</p>
-        <div class="hero-info">
-            <div class="info-item"><span class="icon">📞</span><span>(53) 991027296</span></div>
-            <div class="info-item"><span class="icon">✉️</span><span>profevinicius@gmail.com</span></div>
-            <div class="info-item"><span class="icon">🕐</span><span>Seg-Sex: (8h-12h) e (13:30-17:30h) | Sáb: 8h-12h</span></div>
+        <div class="busca-area">
+            <div class="busca-bar">
+                <input type="text" id="pesquisa" class="busca-input" placeholder="Buscar produtos ou categorias...">
+                <select id="filtroPesquisa" class="busca-select">
+                    <option value="todos">Todos</option>
+                    <option value="categorias">Categorias</option>
+                    <option value="produtos">Produtos</option>
+                </select>
+            </div>
         </div>
-    </div>
-</section>
+    </header>
 
-<section id="servicos" class="secao">
-    <div class="container">
-        <h2 class="titulo-secao">Nossas Categorias</h2>
+    <section class="hero">
+        <div class="container hero-content">
+            <h2>Materiais de Qualidade para sua Obra</h2>
+            <p>Os melhores preços e atendimento personalizado</p>
+            <div class="hero-acoes">
+                <a href="#produtos" class="btn btn-azul">Ver Produtos</a>
+                <a href="#contato" class="btn btn-contorno">Solicitar Orçamento</a>
+            </div>
+            <div class="hero-info">
+                <div class="info-item"><span class="icon">📞</span><span>(53) 991027296</span></div>
+                <div class="info-item"><span class="icon">✉️</span><span>profevinicius@gmail.com</span></div>
+                <div class="info-item"><span class="icon">🕐</span><span>Seg-Sex: (8h-12h) e (13:30-17:30h) | Sáb:
+                        8h-12h</span></div>
+            </div>
+        </div>
+    </section>
 
-        <div class="grid-servicos" id="listaCategorias">
-            <% categorias.forEach(cat => { %>
-                <div class="card-servico">
-                   <img 
-                        src="<% if (cat.imagemBase64) { %>
-                                data:<%= cat.mimetype %>;base64,<%= cat.imagemBase64 %>
-                             <% } else { %>
-                                https://via.placeholder.com/300x200?text=Sem+Imagem
-                             <% } %>"
-                        alt="<%= cat.nome %>"
-                   >
-                    <div class="card-content">
-                        <h3><%= cat.nome %></h3>
-                        <p><%= cat.descricao %></p>
+    <section id="servicos" class="secao">
+        <div class="container">
+            <h2 class="titulo-secao">Nossas Categorias</h2>
+            <p class="subtitulo-secao">Explore os grupos de materiais que temos disponíveis para sua obra.</p>
+
+            <div class="grid-servicos" id="listaCategorias">
+                <% categorias.forEach(cat=> { %>
+                    <div class="card-servico">
+                        <div class="img-wrapper">
+                            <img src="<% if (cat.imagemBase64) { %>
+                                    data:<%= cat.mimetype %>;base64,<%= cat.imagemBase64 %>
+                                 <% } else { %>
+                                    https://via.placeholder.com/300x200?text=Sem+Imagem
+                                 <% } %>" alt="<%= cat.nome %>">
+                        </div>
+                        <div class="card-content">
+                            <h3><%= cat.nome %></h3>
+                            <p><%= cat.descricao %></p>
+                        </div>
+                    </div>
+                    <% }) %>
+
+                    <% if (categorias.length===0) { %>
+                        <p class="estado-vazio">Nenhuma categoria cadastrada ainda.</p>
+                        <% } %>
+            </div>
+
+            <div class="botoes-paginacao">
+                <button id="btnVerMaisCategorias" class="btn btn-azul">Ver mais categorias</button>
+                <button id="btnVerMenosCategorias" class="btn btn-azul" style="display:none;">Mostrar menos</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="produtos" class="secao secao-cinza">
+        <div class="container">
+            <h2 class="titulo-secao">Nossos Produtos</h2>
+            <p class="subtitulo-secao">Confira os produtos disponíveis e solicite um orçamento sem compromisso.</p>
+
+            <div class="filtro-categorias" id="filtroCategorias">
+                <button type="button" class="pill-categoria ativo" data-cat="todos">Todos</button>
+                <% const catsUnicas = []; produtos.forEach(prod => { if (prod.categoria && !catsUnicas.includes(prod.categoria.nome)) catsUnicas.push(prod.categoria.nome); }); %>
+                <% catsUnicas.forEach(catNome => { %>
+                    <button type="button" class="pill-categoria" data-cat="<%= normalizarNome(catNome) %>"><%= catNome %></button>
+                    <% }) %>
+            </div>
+
+            <div class="grid-produtos">
+                <% produtos.forEach(prod=> { %>
+                    <div class="card-produto" data-categoria="<%= prod.categoria ? normalizarNome(prod.categoria.nome) : '' %>">
+                        <div class="img-wrapper">
+                            <img src="<%= prod.imagemBase64 ? `data:${prod.mimetype};base64,${prod.imagemBase64}` : 'https://via.placeholder.com/300x200?text=Sem+Imagem' %>"
+                                alt="<%= prod.nome %>">
+
+                            <% if (prod.quantidade > 0) { %>
+                                <span class="badge-estoque ok">Em estoque</span>
+                                <% } else { %>
+                                    <span class="badge-estoque esgotado">Esgotado</span>
+                                    <% } %>
+                        </div>
+
+                        <div class="produto-info">
+                            <h3><%= prod.nome %></h3>
+                            <p class="preco">R$ <%= prod.preco.toFixed(2) %></p>
+
+                            <% if (prod.categoria) { %>
+                                <p class="categoria"><%= prod.categoria.nome %></p>
+                                <% } %>
+
+                                <% if (prod.quantidade > 0) { %>
+                                    <p class="quantidade"><%= prod.quantidade %> un. em estoque</p>
+                                    <% } %>
+
+                                        <a href="#contato" class="btn btn-azul btn-orcamento" data-produto="<%= prod.nome %>">Solicitar Orçamento</a>
+                        </div>
+                    </div>
+                    <% }) %>
+
+                    <% if (produtos.length===0) { %>
+                        <p class="estado-vazio">Nenhum produto cadastrado ainda.</p>
+                        <% } %>
+            </div>
+
+            <div class="botoes-paginacao">
+                <button id="btnVerMais" class="btn btn-azul">Ver mais produtos</button>
+                <button id="btnVerMenos" class="btn btn-azul" style="display:none;">Mostrar menos</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="localizacao" class="secao">
+        <div class="container">
+            <h2 class="titulo-secao">Nossa Localização</h2>
+            <p class="subtitulo-secao">Venha nos visitar ou entre em contato para mais informações.</p>
+
+            <div class="grid-localizacao">
+                <div class="card-localizacao">
+                    <div class="localizacao-info">
+                        <div class="info-header"><span class="icon-grande">📍</span>
+                            <h3>Endereço</h3>
+                        </div>
+                        <p>
+                            Rua Próspero Ambrósio Pesce, 220<br>
+                            Bairro Passo do Príncipe<br>
+                            Bagé - RS<br>
+                            CEP 96400-000
+                        </p>
+                    </div>
+
+                    <div class="horario-info">
+                        <h4>Horário de Funcionamento</h4>
+                        <p>Segunda a Sexta: (8h-12h) e (13:30-17:30h)</p>
+                        <p>Sábado: 8h-12h</p>
+                        <p class="fechado">Domingo: Fechado</p>
                     </div>
                 </div>
-            <% }) %>
 
-            <% if (categorias.length === 0) { %>
-                <p style="padding: 20px; font-size: 18px; text-align:center;">
-                    Nenhuma categoria cadastrada ainda.
-                </p>
-            <% } %>
+                <div class="mapa">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3292.5216540441243!2d-54.107494729870226!3d-31.344687084025722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9506750d27fd612d%3A0xf778add48b04070!2sArgamassa%20e%20Material%20de%20Constru%C3%A7%C3%A3o%20Novo%20Bel%C3%A9m!5e0!3m2!1spt-BR!2sbr!4v1763379837572!5m2!1spt-BR!2sbr"
+                        width="100%" height="400" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        title="Mapa - Novo Belém">
+                    </iframe>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div style="text-align:center; margin-top: 20px;">
-            <button id="btnVerMaisCategorias" class="btn btn-azul">Ver mais categorias</button>
-            <button id="btnVerMenosCategorias" class="btn btn-azul" style="display:none;">Mostrar menos</button>
-        </div>
-    </div>
-</section>
+    <section id="contato" class="secao secao-cinza">
+        <div class="container">
+            <h2 class="titulo-secao">Entre em Contato</h2>
+            <p class="subtitulo-secao">Preencha o formulário abaixo e receba seu orçamento rapidamente.</p>
 
-<section id="produtos" class="secao secao-cinza">
-    <div class="container">
-        <h2 class="titulo-secao">Nossos Produtos</h2>
+            <div class="formulario-container">
+                <form class="formulario" action="https://formspree.io/f/xrbwqlzb" method="POST">
+                    <input type="hidden" name="_replyto" value="profevinicius@gmail.com">
+                    <input type="hidden" name="_subject" value="Novo Contato do Site Novo Belém">
 
-        <div class="grid-produtos">
-            <% produtos.forEach(prod => { %>
-                <div class="card-produto">
-                    <img 
-                        src="<%= prod.imagemBase64 ? `data:${prod.mimetype};base64,${prod.imagemBase64}` : 'https://via.placeholder.com/300x200?text=Sem+Imagem' %>"
-                        alt="<%= prod.nome %>">
-
-                    <div class="produto-info">
-                        <h3><%= prod.nome %></h3>
-                        <p class="preco">R$ <%= prod.preco.toFixed(2) %></p>
-
-                        <% if (prod.categoria) { %>
-                            <p class="categoria">Categoria: <%= prod.categoria.nome %></p>
-                        <% } %>
-
-                        <% if (prod.quantidade) { %>
-                            <p class="quantidade">Quantidade em Estoque: <%= prod.quantidade %></p>
-                        <% } %>
-
-                        <a href="#contato" class="btn btn-azul">Solicitar Orçamento</a>
+                    <div class="form-group">
+                        <label for="nome">Nome *</label>
+                        <input type="text" id="nome" name="nome" required>
                     </div>
-                </div>
-            <% }) %>
 
-            <% if (produtos.length === 0) { %>
-                <p style="padding: 20px; font-size: 18px; text-align:center;">
-                    Nenhum produto cadastrado ainda.
-                </p>
-            <% } %>
-        </div>
+                    <div class="form-group">
+                        <label for="email">E-mail *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
 
-        <div style="text-align:center; margin-top: 20px;">
-            <button id="btnVerMais" class="btn btn-azul">Ver mais produtos</button>
-            <button id="btnVerMenos" class="btn btn-azul" style="display:none;">Mostrar menos</button>
-        </div>
+                    <div class="form-group">
+                        <label for="telefone">Telefone *</label>
+                        <input type="tel" id="telefone" name="telefone" required>
+                    </div>
 
-    </div>
-</section>
+                    <div class="form-group">
+                        <label for="produto">Produto de Interesse *</label>
+                        <select id="produto" name="produto" required>
+                            <option value="">Selecione um produto</option>
+                            <% produtos.forEach(prod=> { %>
+                                <option value="<%= prod.nome %>">
+                                    <%= prod.nome %> - R$ <%= prod.preco %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
 
-<section id="localizacao" class="secao">
-    <div class="container">
-        <h2 class="titulo-secao">Nossa Localização</h2>
-        <div class="grid-localizacao">
+                    <div class="form-group">
+                        <label for="quantidade">Quantidade Desejada *</label>
+                        <input type="number" id="quantidade" name="quantidade" min="1" required>
+                    </div>
 
-            <div class="card-localizacao">
-                <div class="localizacao-info">
-                    <div class="info-header"><span class="icon-grande">📍</span><h3>Endereço</h3></div>
-                    <p>
-                        Rua Próspero Ambrósio Pesce, 220<br>
-                        Bairro Passo do Príncipe<br>
-                        Bagé - RS<br>
-                        CEP 96400-000
-                    </p>
-                </div>
+                    <div class="form-group">
+                        <label for="mensagem">Mensagem</label>
+                        <textarea id="mensagem" name="mensagem" rows="5"></textarea>
+                    </div>
 
-                <div class="horario-info">
-                    <h4>Horário de Funcionamento</h4>
-                    <p>Segunda a Sexta: (8h-12h) e (13:30-17:30h)</p>
-                    <p>Sábado: 8h-12h</p>
-                    <p>Domingo: Fechado</p>
-                </div>
+                    <button type="submit" class="btn btn-azul">Enviar Mensagem</button>
+                </form>
             </div>
-
-            <div class="mapa">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3292.5216540441243!2d-54.107494729870226!3d-31.344687084025722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9506750d27fd612d%3A0xf778add48b04070!2sArgamassa%20e%20Material%20de%20Constru%C3%A7%C3%A3o%20Novo%20Bel%C3%A9m!5e0!3m2!1spt-BR!2sbr!4v1763379837572!5m2!1spt-BR!2sbr"
-                    width="100%" height="400" style="border:0; border-radius: 12px;" loading="lazy">
-                </iframe>
-            </div>
-
         </div>
-    </div>
-</section>
+    </section>
 
-<section id="contato" class="secao secao-cinza">
-    <div class="container">
-        <h2 class="titulo-secao">Entre em Contato</h2>
-
-        <div class="formulario-container">
-            <form class="formulario" action="https://formspree.io/f/xrbwqlzb" method="POST">
-                <input type="hidden" name="_replyto" value="profevinicius@gmail.com">
-                <input type="hidden" name="_subject" value="Novo Contato do Site Novo Belém">
-
-                <div class="form-group">
-                    <label for="nome">Nome *</label>
-                    <input type="text" id="nome" name="nome" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">E-mail *</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="telefone">Telefone *</label>
-                    <input type="tel" id="telefone" name="telefone" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="produto">Produto de Interesse *</label>
-                    <select id="produto" name="produto" required>
-                        <option value="">Selecione um produto</option>
-                        <% produtos.forEach(prod => { %>
-                            <option value="<%= prod.nome %>">
-                                <%= prod.nome %> - R$ <%= prod.preco %>
-                            </option>
-                        <% }) %>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="quantidade">Quantidade Desejada *</label>
-                    <input type="number" id="quantidade" name="quantidade" min="1" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="mensagem">Mensagem</label>
-                    <textarea id="mensagem" name="mensagem" rows="5"></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-azul">Enviar Mensagem</button>
-            </form>
+    <footer class="rodape">
+        <div class="container">
+            <p class="rodape-marca">&copy; 2026 Novo Belém - Argamassa e Ferragem. Todos os direitos reservados.</p>
+            <p class="rodape-info">Rua Próspero Ambrósio Pesce, 220 - Bairro Passo do Príncipe - Bagé, RS - CEP
+                96400-000</p>
         </div>
-    </div>
-</section>
+    </footer>
 
-<footer class="rodape">
-    <div class="container">
-        <p>&copy; 2025 Novo Belém - Argamassa e Ferragem. Todos os direitos reservados.</p>
-        <p class="rodape-info">Rua Próspero Ambrósio Pesce, 220 - Bairro Passo do Príncipe - Bagé, RS - CEP 96400-000</p>
-    </div>
-</footer>
+    <a href="https://wa.me/5553991027296?text=Ol%C3%A1!%20Quero%20saber%20mais!" target="_blank" rel="noopener"
+        class="whatsapp-float" aria-label="Falar no WhatsApp">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path
+                d="M16 2C8.3 2 2 8.3 2 16c0 2.7 0.8 5.2 2.1 7.4L2 30l6.8-2.1C11 29.5 13.4 30 16 30c7.7 0 14-6.3 14-14S23.7 2 16 2zm0 25.5c-2.4 0-4.6-0.7-6.5-1.8l-0.5-0.3-4 1.2 1.2-3.9-0.3-0.5C4.3 20 3.5 18 3.5 16 3.5 9.1 9.1 3.5 16 3.5S28.5 9.1 28.5 16 22.9 27.5 16 27.5zm7.1-9.7c-0.4-0.2-2.3-1.1-2.6-1.2-0.3-0.2-0.6-0.2-0.8 0.2-0.2 0.3-0.9 1.2-1.1 1.4-0.2 0.2-0.4 0.2-0.8 0.1-0.4-0.2-1.6-0.6-3.1-1.9-1.1-1-1.9-2.2-2.1-2.6-0.2-0.4 0-0.6 0.2-0.8 0.2-0.2 0.4-0.4 0.6-0.7 0.2-0.2 0.3-0.4 0.4-0.7 0.1-0.3 0.1-0.5 0-0.7-0.1-0.2-0.8-2-1.1-2.7-0.3-0.7-0.6-0.6-0.8-0.6h-0.7c-0.2 0-0.6 0.1-0.9 0.4-0.3 0.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.4c0.2 0.2 2.4 3.6 5.8 5.1 0.8 0.3 1.4 0.5 1.9 0.7 0.8 0.2 1.5 0.2 2.1 0.1 0.6-0.1 2-0.8 2.3-1.6 0.3-0.8 0.3-1.5 0.2-1.7-0.1-0.2-0.3-0.3-0.7-0.4z" />
+        </svg>
+    </a>
 
-<script>
-function removerAcentos(texto) {
-    if (!texto) return "";
-    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+    <button id="voltar-topo" class="voltar-topo" type="button" aria-label="Voltar ao topo">&uarr;</button>
 
-const inputPesquisa = document.getElementById("pesquisa");
+    <script>
+        function removerAcentos(texto) {
+            if (!texto) return "";
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
 
-inputPesquisa.addEventListener("input", function () {
-    const termo = removerAcentos(this.value.toLowerCase().trim());
+        const inputPesquisa = document.getElementById("pesquisa");
+        const filtroPesquisa = document.getElementById("filtroPesquisa");
+        const secaoCategorias = document.getElementById("servicos");
+        const secaoProdutos = document.getElementById("produtos");
 
-    document.querySelectorAll(".card-servico").forEach(card => {
-        const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
-        const desc = removerAcentos(card.querySelector("p").textContent.toLowerCase());
-        card.style.display = (nome.includes(termo) || desc.includes(termo)) ? "" : "none";
-    });
+        const categoriasLista = document.querySelectorAll(".card-servico");
+        const produtos = document.querySelectorAll(".card-produto");
 
-    document.querySelectorAll(".card-produto").forEach(card => {
-        const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
-        let categoria = "";
-        const catEl = card.querySelector(".categoria");
-        if (catEl) categoria = removerAcentos(catEl.textContent.replace(/Categoria:\s*/i, "").toLowerCase());
-        card.style.display = (nome.includes(termo) || categoria.includes(termo)) ? "" : "none";
-    });
-});
+        let produtosVisiveis = 4;
+        let categoriasVisiveis = 5;
+        let categoriaAtiva = "todos";
+        const pillsCategoria = document.querySelectorAll(".pill-categoria");
 
+        function atualizarProdutos() {
+            let contador = 0;
+            produtos.forEach(p => {
+                if (p.dataset.match === "0") {
+                    p.style.display = "none";
+                    return;
+                }
+                contador++;
+                p.style.display = contador <= produtosVisiveis ? "block" : "none";
+            });
 
-const produtos = document.querySelectorAll(".card-produto");
-let produtosVisiveis = 4;
+            document.getElementById("btnVerMais").style.display =
+                produtosVisiveis >= contador ? "none" : "inline-block";
 
-function atualizarProdutos() {
-    produtos.forEach((p, i) => p.style.display = i < produtosVisiveis ? "block" : "none");
+            document.getElementById("btnVerMenos").style.display =
+                produtosVisiveis > 4 ? "inline-block" : "none";
+        }
 
-    document.getElementById("btnVerMais").style.display =
-        produtosVisiveis >= produtos.length ? "none" : "inline-block";
+        function atualizarCategorias() {
+            let contador = 0;
+            categoriasLista.forEach(c => {
+                if (c.dataset.match === "0") {
+                    c.style.display = "none";
+                    return;
+                }
+                contador++;
+                c.style.display = contador <= categoriasVisiveis ? "block" : "none";
+            });
 
-    document.getElementById("btnVerMenos").style.display =
-        produtosVisiveis > 4 ? "inline-block" : "none";
-}
+            document.getElementById("btnVerMaisCategorias").style.display =
+                categoriasVisiveis >= contador ? "none" : "inline-block";
 
-atualizarProdutos();
+            document.getElementById("btnVerMenosCategorias").style.display =
+                categoriasVisiveis > 5 ? "inline-block" : "none";
+        }
 
-document.getElementById("btnVerMais").addEventListener("click", () => {
-    produtosVisiveis += 4;
-    atualizarProdutos();
-});
+        function aplicarFiltro() {
+            const termo = removerAcentos(inputPesquisa.value.toLowerCase().trim());
+            const filtro = filtroPesquisa.value;
 
-document.getElementById("btnVerMenos").addEventListener("click", () => {
-    produtosVisiveis = 4;
-    atualizarProdutos();
-});
+            secaoCategorias.style.display = (filtro === "produtos") ? "none" : "";
+            secaoProdutos.style.display = (filtro === "categorias") ? "none" : "";
 
+            categoriasLista.forEach(card => {
+                const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
+                const desc = removerAcentos(card.querySelector("p").textContent.toLowerCase());
+                card.dataset.match = (nome.includes(termo) || desc.includes(termo)) ? "1" : "0";
+            });
 
-const categoriasLista = document.querySelectorAll(".card-servico");
-let categoriasVisiveis = 3;
+            produtos.forEach(card => {
+                const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
+                let categoria = "";
+                const catEl = card.querySelector(".categoria");
+                if (catEl) categoria = removerAcentos(catEl.textContent.replace(/Categoria:\s*/i, "").toLowerCase());
+                const termoOK = nome.includes(termo) || categoria.includes(termo);
+                const catOK = categoriaAtiva === "todos" || card.dataset.categoria === categoriaAtiva;
+                card.dataset.match = (termoOK && catOK) ? "1" : "0";
+            });
 
-function atualizarCategorias() {
-    categoriasLista.forEach((c, i) => c.style.display = i < categoriasVisiveis ? "block" : "none");
+            produtosVisiveis = 4;
+            categoriasVisiveis = 5;
 
-    document.getElementById("btnVerMaisCategorias").style.display =
-        categoriasVisiveis >= categoriasLista.length ? "none" : "inline-block";
+            atualizarProdutos();
+            atualizarCategorias();
+        }
 
-    document.getElementById("btnVerMenosCategorias").style.display =
-        categoriasVisiveis > 3 ? "inline-block" : "none";
-}
+        inputPesquisa.addEventListener("input", aplicarFiltro);
+        filtroPesquisa.addEventListener("change", aplicarFiltro);
 
-atualizarCategorias();
+        document.getElementById("btnVerMais").addEventListener("click", () => {
+            produtosVisiveis += 4;
+            atualizarProdutos();
+        });
 
-document.getElementById("btnVerMaisCategorias").addEventListener("click", () => {
-    categoriasVisiveis += 3;
-    atualizarCategorias();
-});
+        document.getElementById("btnVerMenos").addEventListener("click", () => {
+            produtosVisiveis = 4;
+            atualizarProdutos();
+        });
 
-document.getElementById("btnVerMenosCategorias").addEventListener("click", () => {
-    categoriasVisiveis = 3;
-    atualizarCategorias();
-});
-</script>
+        document.getElementById("btnVerMaisCategorias").addEventListener("click", () => {
+            categoriasVisiveis += 3;
+            atualizarCategorias();
+        });
+
+        document.getElementById("btnVerMenosCategorias").addEventListener("click", () => {
+            categoriasVisiveis = 5;
+            atualizarCategorias();
+        });
+
+        pillsCategoria.forEach(pill => {
+            pill.addEventListener("click", () => {
+                categoriaAtiva = pill.dataset.cat;
+                pillsCategoria.forEach(p => p.classList.toggle("ativo", p === pill));
+                produtosVisiveis = 4;
+                aplicarFiltro();
+            });
+        });
+
+        aplicarFiltro();
+
+        // ----- Pré-seleciona o produto clicado no formulário de orçamento -----
+        document.querySelectorAll(".btn-orcamento").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const nome = this.dataset.produto;
+                const selectProduto = document.getElementById("produto");
+                const qtd = document.getElementById("quantidade");
+                if (selectProduto && nome) selectProduto.value = nome;
+                if (qtd) qtd.value = "1";
+            });
+        });
+
+        // ----- Tema escuro -----
+        const darkModeToggle = document.getElementById("dark-mode-toggle");
+
+        function aplicarTema(tema) {
+            const usarEscuro = tema === "dark";
+            document.body.classList.toggle("dark-mode", usarEscuro);
+            if (darkModeToggle) {
+                darkModeToggle.textContent = usarEscuro ? "Modo Claro" : "Modo Escuro";
+            }
+        }
+
+        function alternarTema() {
+            const temaAtual = document.body.classList.contains("dark-mode") ? "dark" : "light";
+            const proximoTema = temaAtual === "dark" ? "light" : "dark";
+            localStorage.setItem("theme", proximoTema);
+            aplicarTema(proximoTema);
+        }
+
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener("click", alternarTema);
+        }
+
+        const temaSalvo = localStorage.getItem("theme");
+        const temaInicial = temaSalvo || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        aplicarTema(temaInicial);
+
+        // ----- Botão voltar ao topo + sombra no cabeçalho -----
+        const btnTopo = document.getElementById("voltar-topo");
+        const topoSite = document.getElementById("topo-site");
+
+        function onScroll() {
+            const passou = window.scrollY > 350;
+            btnTopo.classList.toggle("visivel", passou);
+            if (topoSite) topoSite.classList.toggle("scrolled", window.scrollY > 10);
+        }
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+
+        btnTopo.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        // ----- Fecha o menu mobile ao tocar em um link -----
+        const menuToggle = document.getElementById("menu-toggle");
+        document.querySelectorAll(".menu a").forEach(link => {
+            link.addEventListener("click", () => {
+                if (menuToggle && menuToggle.checked) menuToggle.checked = false;
+            });
+        });
+    </script>
 
 </body>
+
 </html>
