@@ -10,6 +10,7 @@ import usuarioRoutes from './routes/usuarioRoutes.js';
 import entregaRoutes from './routes/entregaRoutes.js';
 import servicoRoutes from './routes/servicoRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import contatoRoutes from './routes/contatoRoutes.js';
 import siteRoutes from './routes/route.js';
 
 const app = express();
@@ -49,6 +50,7 @@ app.use('/', produtoRoutes);     // Produtos
 app.use('/', entregaRoutes);     // Entregas
 app.use('/', servicoRoutes);     // Serviços
 app.use('/', authRoutes);        // Autenticação
+app.use('/', contatoRoutes);     // Orçamentos
 app.use('/', siteRoutes);        // Rotas do site
 // Página inicial: se já estiver logado, vai para o painel; senão, para o login
 app.get('/', (req, res) => {

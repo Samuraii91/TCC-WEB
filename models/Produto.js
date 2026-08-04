@@ -18,7 +18,10 @@ const ProdutoSchema = new mongoose.Schema({
   mimetype: { type: String, required: false },
 
   // Quantidade em estoque
-  quantidade: { type: Number, required: true, default: 0 }
+  quantidade: { type: Number, required: true, default: 0 },
+
+  // Avaliações dos clientes (notas de 1 a 5)
+  avaliacoes: { type: [Number], default: [] }
 
 }, { timestamps: true });
 

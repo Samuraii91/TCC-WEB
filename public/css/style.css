@@ -517,6 +517,8 @@ a {
 .stat-card.entregas .stat-icone { background: linear-gradient(135deg, #8b5cf6, #d946ef); }
 .stat-card.alerta .stat-icone { background: linear-gradient(135deg, var(--vermelho), #fb923c); }
 .stat-card.pendentes .stat-icone { background: linear-gradient(135deg, var(--amarelo), var(--laranja)); }
+.stat-card.contatos .stat-icone { background: linear-gradient(135deg, #16a34a, #25d366); }
+.stat-card.contatos-pendentes .stat-icone { background: linear-gradient(135deg, #f59e0b, #ef4444); }
 
 .stat-card.produtos::after { background: var(--azul); }
 .stat-card.categorias::after { background: var(--violeta); }
@@ -524,6 +526,8 @@ a {
 .stat-card.entregas::after { background: #d946ef; }
 .stat-card.alerta::after { background: var(--vermelho); }
 .stat-card.pendentes::after { background: var(--amarelo); }
+.stat-card.contatos::after { background: #25d366; }
+.stat-card.contatos-pendentes::after { background: var(--amarelo); }
 
 .stat-numero {
   font-size: 30px;
@@ -542,7 +546,7 @@ a {
 ====================================================== */
 .charts-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
   gap: 20px;
   margin-bottom: 26px;
   max-width: 1150px;
@@ -558,11 +562,26 @@ a {
 .dashboard-secoes {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
+  grid-template-areas:
+    "entregas acoes"
+    "contatos acoes";
   gap: 20px;
   align-items: start;
   max-width: 1150px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.dashboard-secoes .painel-entregas {
+  grid-area: entregas;
+}
+
+.dashboard-secoes .painel-contatos {
+  grid-area: contatos;
+}
+
+.dashboard-secoes .painel-acoes {
+  grid-area: acoes;
 }
 
 .painel-card {
@@ -842,6 +861,67 @@ table img {
   border-color: rgba(16, 185, 129, 0.4);
 }
 
+.badge-aguardando {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.badge-whatsapp {
+  background: rgba(37, 211, 102, 0.14);
+  color: #4ade80;
+  border-color: rgba(37, 211, 102, 0.4);
+}
+
+.badge-email {
+  background: rgba(59, 130, 246, 0.14);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.badge-nao {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ======================================================
+   DETALHES DO ORÇAMENTO
+====================================================== */
+.detalhes-contato {
+  background: var(--card-1, #fff);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio, 14px);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  max-width: 560px;
+}
+
+.detalhe-item {
+  font-size: 15px;
+  color: var(--texto);
+}
+
+.detalhe-label {
+  font-weight: 600;
+  color: var(--azul-claro);
+}
+
+.detalhe-mensagem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detalhe-texto {
+  margin: 0;
+  white-space: pre-wrap;
+  color: var(--texto);
+}
+
 /* ======================================================
    BOTÕES
 ====================================================== */
@@ -1082,6 +1162,10 @@ a.del:hover {
 
   .dashboard-secoes {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "entregas"
+      "contatos"
+      "acoes";
   }
 
   .action-buttons {

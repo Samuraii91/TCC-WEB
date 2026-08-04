@@ -2,9 +2,13 @@ import express from 'express'
 const router = express.Router()
 
 import ContatoController from '../controllers/ContatoController.js'
+import { verificarLogin } from '../middlewares/auth.js'
 const controle = new ContatoController()
 
 const caminhobase = 'contato/'
+
+// 🔒 Todas as rotas de orçamento exigem login
+router.use('/contato', verificarLogin)
 
 // Formulário de adicionar
 router.get('/' + caminhobase + 'add', controle.openAdd)

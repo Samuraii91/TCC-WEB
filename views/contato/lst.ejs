@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Orçamentos</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Orçamentos Recebidos</h2>
+
+    <div class="top-bar">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Pesquisar orçamento..."
+          onkeyup="filtrarTabela()" />
+      </div>
+    </div>
+
+    <table id="tabelaContatos">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Contato</th>
+          <th>Produto</th>
+          <th>Qtd</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% contatos.forEach(contato => { %>
+          <tr>
+            <td><%= contato.nome %></td>
+            <td>
+              <%= contato.email %><br>
+              <small><%= contato.telefone %></small>
+            </td>
+            <td><%= contato.produto || '-' %></td>
+            <td><%= contato.quantidade || '-' %></td>
+            <td>
+              <% if (contato.status === 'Aguardando') { %>
+                <span class="badge badge-aguardando">Aguardando</span>
+              <% } else if (contato.status === 'Respondido via WhatsApp') { %>
+                <span class="badge badge-whatsapp">Respondido via WhatsApp</span>
+              <% } else if (contato.status === 'Respondido via Email') { %>
+                <span class="badge badge-email">Respondido via Email</span>
+              <% } else { %>
+                <span class="badge badge-nao">Não respondido</span>
+              <% } %>
+            </td>
+            <td><%= contato.createdAt ? new Date(contato.createdAt).toLocaleDateString('pt-BR') : '-' %></td>
+            <td>
+              <div class="action-buttons">
+                <a href="/contato/edt/<%= contato._id %>" class="edit">Editar</a>
+                <a href="/contato/del/<%= contato._id %>" class="del"
+                   onclick="return confirm('Deseja excluir este orçamento?')">
+                  Excluir
+                </a>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <% if (contatos.length === 0) { %>
+      <p class="estado-vazio">Nenhum orçamento recebido ainda.</p>
+    <% } %>
+
+    <br />
+  </div>
+
+  <%- include('../rodape.ejs') %>
+
+  <script>
+    function filtrarTabela() {
+      const input = document.getElementById("searchInput");
+      const filtro = input.value.toLowerCase();
+      const linhas = document.querySelectorAll("#tabelaContatos tbody tr");
+
+      linhas.forEach(linha => {
+        const texto = linha.innerText.toLowerCase();
+        linha.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>

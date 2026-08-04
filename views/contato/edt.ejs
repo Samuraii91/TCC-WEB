@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Editar Orçamento</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <%- include('../cabecalho.ejs') %>
+
+  <div class="container">
+    <h2>Orçamento - <%= contato.nome %></h2>
+
+    <div class="detalhes-contato">
+      <div class="detalhe-item"><span class="detalhe-label">Nome:</span> <%= contato.nome %></div>
+      <div class="detalhe-item"><span class="detalhe-label">E-mail:</span> <%= contato.email %></div>
+      <div class="detalhe-item"><span class="detalhe-label">Telefone:</span> <%= contato.telefone %></div>
+      <div class="detalhe-item"><span class="detalhe-label">Produto:</span> <%= contato.produto || '-' %></div>
+      <div class="detalhe-item"><span class="detalhe-label">Quantidade:</span> <%= contato.quantidade || '-' %></div>
+      <div class="detalhe-item"><span class="detalhe-label">Recebido em:</span> <%= contato.createdAt ? new Date(contato.createdAt).toLocaleDateString('pt-BR') : '-' %></div>
+      <div class="detalhe-item detalhe-mensagem">
+        <span class="detalhe-label">Mensagem:</span>
+        <p class="detalhe-texto"><%= contato.mensagem || '—' %></p>
+      </div>
+    </div>
+
+    <form action="/contato/edt/<%= contato._id %>" method="POST" class="form-padrao">
+      <div class="form-group">
+        <label for="status">Status do Orçamento:</label>
+        <select id="status" name="status" required>
+          <option value="Aguardando" <%= contato.status === "Aguardando" ? "selected" : "" %>>Aguardando</option>
+          <option value="Respondido via WhatsApp" <%= contato.status === "Respondido via WhatsApp" ? "selected" : "" %>>Respondido via WhatsApp</option>
+          <option value="Respondido via Email" <%= contato.status === "Respondido via Email" ? "selected" : "" %>>Respondido via Email</option>
+          <option value="Não respondido" <%= contato.status === "Não respondido" ? "selected" : "" %>>Não respondido</option>
+        </select>
+      </div>
+
+      <div class="botoes-centro">
+        <button type="submit" class="btn-salvar">💾 Salvar</button>
+      </div>
+    </form>
+
+    <div class="voltar-centro">
+      <a href="/contato/lst" class="btn-voltar">↩ Voltar</a>
+    </div>
+  </div>
+
+  <%- include('../rodape.ejs') %>
+</body>
+</html>

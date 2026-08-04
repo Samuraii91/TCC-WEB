@@ -59,6 +59,22 @@
         <div class="stat-label">Produtos com estoque baixo</div>
       </div>
     </a>
+
+    <a href="/contato/lst" class="stat-card contatos">
+      <div class="stat-icone">💬</div>
+      <div>
+        <div class="stat-numero"><%= totalContatos %></div>
+        <div class="stat-label">Orçamentos recebidos</div>
+      </div>
+    </a>
+
+    <a href="/contato/lst" class="stat-card contatos-pendentes">
+      <div class="stat-icone">⏰</div>
+      <div>
+        <div class="stat-numero"><%= contatosAguardando %></div>
+        <div class="stat-label">Orçamentos aguardando</div>
+      </div>
+    </a>
   </div>
 
   <div class="charts-grid">
@@ -75,10 +91,17 @@
         <canvas id="graficoCategoria"></canvas>
       </div>
     </div>
+
+    <div class="painel-card">
+      <h3>Orçamentos por status</h3>
+      <div class="chart-wrapper">
+        <canvas id="graficoContato"></canvas>
+      </div>
+    </div>
   </div>
 
   <div class="dashboard-secoes">
-    <div class="painel-card">
+    <div class="painel-card painel-entregas">
       <h3>Últimas entregas</h3>
 
       <% if (ultimasEntregas.length===0) { %>
@@ -121,13 +144,59 @@
           <% } %>
     </div>
 
-    <div class="painel-card">
+    <div class="painel-card painel-contatos">
+      <h3>Últimos orçamentos</h3>
+
+      <% if (ultimosContatos.length===0) { %>
+        <p class="estado-vazio">Nenhum orçamento recebido ainda.</p>
+        <% } else { %>
+          <table class="tabela-mini">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Produto</th>
+                <th>Status</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% ultimosContatos.forEach(contato=> { %>
+                <tr>
+                  <td>
+                    <%= contato.nome %>
+                  </td>
+                  <td>
+                    <%= contato.produto || '-' %>
+                  </td>
+                  <td>
+                    <% if (contato.status==='Aguardando' ) { %>
+                      <span class="badge badge-aguardando">Aguardando</span>
+                      <% } else if (contato.status==='Respondido via WhatsApp' ) { %>
+                        <span class="badge badge-whatsapp">Respondido via WhatsApp</span>
+                        <% } else if (contato.status==='Respondido via Email' ) { %>
+                          <span class="badge badge-email">Respondido via Email</span>
+                          <% } else { %>
+                            <span class="badge badge-nao">Não respondido</span>
+                            <% } %>
+                  </td>
+                  <td>
+                    <%= contato.createdAt ? new Date(contato.createdAt).toLocaleDateString('pt-BR') : '-' %>
+                  </td>
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
+          <% } %>
+    </div>
+
+    <div class="painel-card painel-acoes">
       <h3>Ações rápidas</h3>
       <div class="acoes-rapidas">
         <a href="/produto/add" class="acao-rapida">📦 Novo produto</a>
         <a href="/categoria/add" class="acao-rapida">🗂️ Nova categoria</a>
         <a href="/servico/add" class="acao-rapida">🛠️ Novo serviço</a>
         <a href="/entrega/add" class="acao-rapida">🚚 Nova entrega</a>
+        <a href="/contato/lst" class="acao-rapida">💬 Ver orçamentos</a>
       </div>
     </div>
   </div>
@@ -150,6 +219,8 @@
       var statusData = <%- JSON.stringify((typeof entregasStatus !== 'undefined' && entregasStatus && entregasStatus.data) || []) %>;
       var catLabels = <%- JSON.stringify((typeof produtosCat !== 'undefined' && produtosCat && produtosCat.labels) || []) %>;
       var catData = <%- JSON.stringify((typeof produtosCat !== 'undefined' && produtosCat && produtosCat.data) || []) %>;
+      var contatoLabels = <%- JSON.stringify((typeof contatosStatus !== 'undefined' && contatosStatus && contatosStatus.labels) || []) %>;
+      var contatoData = <%- JSON.stringify((typeof contatosStatus !== 'undefined' && contatosStatus && contatosStatus.data) || []) %>;
 
       new Chart(document.getElementById('graficoStatus'), {
         type: 'doughnut',
@@ -193,6 +264,27 @@
           scales: {
             y: { beginAtZero: true, ticks: { precision: 0 } },
             x: { grid: { display: false } }
+          }
+        }
+      });
+
+      new Chart(document.getElementById('graficoContato'), {
+        type: 'doughnut',
+        data: {
+          labels: contatoLabels,
+          datasets: [{
+            data: contatoData,
+            backgroundColor: ['#fbbf24', '#4ade80', '#60a5fa', '#f87171'],
+            borderColor: '#151d36',
+            borderWidth: 3,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18 } }
           }
         }
       });

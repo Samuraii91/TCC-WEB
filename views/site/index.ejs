@@ -14,6 +14,7 @@
 <body>
 
     <% const normalizarNome = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); %>
+    <% const notaMedia = (av) => (av && av.length) ? (av.reduce((s, v) => s + v, 0) / av.length) : 0; %>
 
     <header class="topo" id="topo-site">
         <div class="topo-linha">
@@ -119,7 +120,7 @@
 
             <div class="grid-produtos">
                 <% produtos.forEach(prod=> { %>
-                    <div class="card-produto" data-categoria="<%= prod.categoria ? normalizarNome(prod.categoria.nome) : '' %>">
+                    <div class="card-produto" data-categoria="<%= prod.categoria ? normalizarNome(prod.categoria.nome) : '' %>" data-produto-id="<%= prod._id %>">
                         <div class="img-wrapper">
                             <img src="<%= prod.imagemBase64 ? `data:${prod.mimetype};base64,${prod.imagemBase64}` : 'https://via.placeholder.com/300x200?text=Sem+Imagem' %>"
                                 alt="<%= prod.nome %>">
@@ -135,6 +136,8 @@
                             <h3><%= prod.nome %></h3>
                             <p class="preco">R$ <%= prod.preco.toFixed(2) %></p>
 
+                            <div class="produto-avaliacao" data-nota="<%= notaMedia(prod.avaliacoes).toFixed(1) %>" data-avaliacoes="<%= (prod.avaliacoes || []).length %>"></div>
+
                             <% if (prod.categoria) { %>
                                 <p class="categoria"><%= prod.categoria.nome %></p>
                                 <% } %>
@@ -143,7 +146,14 @@
                                     <p class="quantidade"><%= prod.quantidade %> un. em estoque</p>
                                     <% } %>
 
+                                    <div class="produto-descricao-oculta" style="display:none"><%= prod.descricao || '' %></div>
+
+                                    <div class="produto-acoes">
+                                        <button type="button" class="btn btn-ver-detalhes">Ver detalhes</button>
                                         <a href="#contato" class="btn btn-azul btn-orcamento" data-produto="<%= prod.nome %>">Solicitar Orçamento</a>
+                                        <a href="https://wa.me/5553991027296?text=<%= encodeURIComponent('Olá! Gostaria de saber mais sobre o produto: ' + prod.nome) %>"
+                                            class="btn btn-whatsapp" target="_blank" rel="noopener">Pedir via WhatsApp</a>
+                                    </div>
                         </div>
                     </div>
                     <% }) %>
@@ -258,6 +268,44 @@
                 96400-000</p>
         </div>
     </footer>
+
+    <div class="modal-overlay" id="modalProduto" aria-hidden="true">
+        <div class="modal-produto" role="dialog" aria-modal="true" aria-labelledby="modalProdutoNome">
+            <button type="button" class="modal-fechar" id="modalFechar" aria-label="Fechar">&times;</button>
+            <div class="modal-corpo">
+                <div class="modal-imagem">
+                    <img id="modalProdutoImagem" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <span class="badge-estoque ok" id="modalProdutoEstoque">Em estoque</span>
+                    <h3 id="modalProdutoNome"></h3>
+                    <p class="preco" id="modalProdutoPreco"></p>
+                    <p class="categoria" id="modalProdutoCategoria"></p>
+
+                    <div class="modal-avaliacao">
+                        <div class="modal-estrelas-visual" id="modalEstrelasVisual"></div>
+                        <span class="modal-nota-texto" id="modalNotaTexto"></span>
+                        <button type="button" class="btn-avaliar" id="btnAvaliar">⭐ Avaliar</button>
+                    </div>
+                    <div class="modal-estrelas-input" id="modalEstrelasInput" style="display:none">
+                        <span class="estrela-input" data-valor="1">★</span>
+                        <span class="estrela-input" data-valor="2">★</span>
+                        <span class="estrela-input" data-valor="3">★</span>
+                        <span class="estrela-input" data-valor="4">★</span>
+                        <span class="estrela-input" data-valor="5">★</span>
+                    </div>
+
+                    <p class="modal-descricao" id="modalProdutoDescricao"></p>
+                    <div class="modal-acoes">
+                        <a href="#" id="modalProdutoWhatsapp" class="btn btn-whatsapp" target="_blank"
+                            rel="noopener">Pedir via WhatsApp</a>
+                        <a href="#contato" class="btn btn-azul btn-orcamento" id="modalProdutoOrcamento">Solicitar
+                            Orçamento</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <a href="https://wa.me/5553991027296?text=Ol%C3%A1!%20Quero%20saber%20mais!" target="_blank" rel="noopener"
         class="whatsapp-float" aria-label="Falar no WhatsApp">
@@ -398,6 +446,181 @@
                 if (qtd) qtd.value = "1";
             });
         });
+
+        // ----- Modal de detalhes do produto -----
+        const modalProduto = document.getElementById("modalProduto");
+        const btnModalFechar = document.getElementById("modalFechar");
+        const btnModalOrcamento = document.getElementById("modalProdutoOrcamento");
+
+        // ----- Estrelas de avaliação -----
+        function estrelasHTML(nota) {
+            const arred = Math.round(nota);
+            let html = "";
+            for (let i = 1; i <= 5; i++) {
+                html += i <= arred
+                    ? '<span class="estrela on">★</span>'
+                    : '<span class="estrela">☆</span>';
+            }
+            return html;
+        }
+
+        document.querySelectorAll(".produto-avaliacao").forEach(el => {
+            const nota = parseFloat(el.dataset.nota) || 0;
+            const total = parseInt(el.dataset.avaliacoes) || 0;
+            el.innerHTML = estrelasHTML(nota) +
+                (total > 0 ? ' <span class="avaliacao-contagem">(' + total + ')</span>' : "");
+        });
+
+        let cardAtual = null;
+
+        function fecharModal() {
+            modalProduto.classList.remove("aberto");
+            modalProduto.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("modal-aberto");
+        }
+
+        function abrirModal(card) {
+            cardAtual = card;
+            const nome = card.querySelector("h3").textContent.trim();
+            const preco = card.querySelector(".preco").textContent.trim();
+            const catEl = card.querySelector(".categoria");
+            const categoria = catEl ? catEl.textContent.trim() : "";
+            const qtdEl = card.querySelector(".quantidade");
+            const emEstoque = qtdEl !== null;
+            const desc = card.querySelector(".produto-descricao-oculta")
+                ? card.querySelector(".produto-descricao-oculta").textContent.trim()
+                : "";
+
+            const img = card.querySelector("img");
+            const modalImg = document.getElementById("modalProdutoImagem");
+            modalImg.src = img ? img.src : "";
+            modalImg.alt = nome;
+
+            document.getElementById("modalProdutoNome").textContent = nome;
+            document.getElementById("modalProdutoPreco").textContent = preco;
+
+            const catModal = document.getElementById("modalProdutoCategoria");
+            catModal.textContent = categoria;
+            catModal.style.display = categoria ? "" : "none";
+
+            const estoqueModal = document.getElementById("modalProdutoEstoque");
+            estoqueModal.textContent = emEstoque ? "Em estoque" : "Esgotado";
+            estoqueModal.className = "badge-estoque " + (emEstoque ? "ok" : "esgotado");
+
+            document.getElementById("modalProdutoDescricao").textContent =
+                desc || "Descrição não informada. Entre em contato para mais detalhes.";
+
+            document.getElementById("modalProdutoWhatsapp").href =
+                "https://wa.me/5553991027296?text=" +
+                encodeURIComponent("Olá! Gostaria de saber mais sobre o produto: " + nome);
+
+            btnModalOrcamento.dataset.produto = nome;
+
+            // ----- Preenche as estrelas de avaliação -----
+            const avEl = card.querySelector(".produto-avaliacao");
+            const nota = avEl ? parseFloat(avEl.dataset.nota) || 0 : 0;
+            const total = avEl ? parseInt(avEl.dataset.avaliacoes) || 0 : 0;
+            const idProduto = card.dataset.produtoId;
+
+            document.getElementById("modalEstrelasVisual").innerHTML = estrelasHTML(nota);
+            document.getElementById("modalNotaTexto").textContent =
+                total > 0 ? nota.toFixed(1) + " · " + total + " avaliações" : "Sem avaliações ainda";
+
+            const jaAvaliou = localStorage.getItem("avaliou_" + idProduto) === "1";
+            document.getElementById("btnAvaliar").style.display = jaAvaliou ? "none" : "inline-block";
+            document.getElementById("modalEstrelasInput").style.display = "none";
+
+            modalProduto.classList.add("aberto");
+            modalProduto.setAttribute("aria-hidden", "false");
+            document.body.classList.add("modal-aberto");
+        }
+
+        document.querySelectorAll(".btn-ver-detalhes").forEach(btn => {
+            btn.addEventListener("click", () => {
+                abrirModal(btn.closest(".card-produto"));
+            });
+        });
+
+        btnModalFechar.addEventListener("click", fecharModal);
+
+        btnModalOrcamento.addEventListener("click", fecharModal);
+
+        modalProduto.addEventListener("click", (e) => {
+            if (e.target === modalProduto) fecharModal();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") fecharModal();
+        });
+
+        // ----- Avaliar produto -----
+        const btnAvaliar = document.getElementById("btnAvaliar");
+        const estrelasInput = document.querySelectorAll(".estrela-input");
+
+        function destacarEstrelasInput(ate) {
+            estrelasInput.forEach(s => {
+                s.classList.toggle("ativo", parseInt(s.dataset.valor) <= ate);
+            });
+        }
+
+        btnAvaliar.addEventListener("click", () => {
+            document.getElementById("modalEstrelasInput").style.display = "flex";
+            btnAvaliar.style.display = "none";
+        });
+
+        estrelasInput.forEach(s => {
+            s.addEventListener("mouseover", () => destacarEstrelasInput(parseInt(s.dataset.valor)));
+            s.addEventListener("mouseout", () => destacarEstrelasInput(0));
+
+            s.addEventListener("click", async () => {
+                const valor = parseInt(s.dataset.valor);
+                const avEl = cardAtual ? cardAtual.querySelector(".produto-avaliacao") : null;
+                const id = cardAtual ? cardAtual.dataset.produtoId : null;
+                if (!avEl || !id) return;
+
+                try {
+                    const res = await fetch("/site/avaliar", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams({ id: id, nota: valor })
+                    });
+                    const data = await res.json();
+                    if (data.ok) {
+                        avEl.dataset.nota = data.notaMedia;
+                        avEl.dataset.avaliacoes = data.total;
+                        avEl.innerHTML = estrelasHTML(data.notaMedia) +
+                            ' <span class="avaliacao-contagem">(' + data.total + ')</span>';
+
+                        document.getElementById("modalEstrelasVisual").innerHTML = estrelasHTML(data.notaMedia);
+                        document.getElementById("modalNotaTexto").textContent =
+                            data.notaMedia.toFixed(1) + " · " + data.total + " avaliações";
+
+                        localStorage.setItem("avaliou_" + id, "1");
+                        document.getElementById("modalEstrelasInput").style.display = "none";
+                    }
+                } catch (err) {
+                    console.error("Erro ao avaliar:", err);
+                }
+            });
+        });
+
+        // ----- Salva o orçamento no banco e continua enviando por e-mail (Formspree) -----
+        const formContato = document.querySelector(".formulario");
+        if (formContato) {
+            formContato.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                try {
+                    await fetch("/site/contato", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams(new FormData(formContato))
+                    });
+                } catch (err) {
+                    console.error("Erro ao salvar o contato no banco:", err);
+                }
+                formContato.submit();
+            });
+        }
 
         // ----- Tema escuro -----
         const darkModeToggle = document.getElementById("dark-mode-toggle");
