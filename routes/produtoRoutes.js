@@ -26,6 +26,9 @@ router.post(
 // 🔹 Lista de produtos
 router.get("/" + caminhobase + "lst", controle.lst.bind(controle));
 
+// 🔹 Relatório de estoque (PDF/impressão)
+router.get("/" + caminhobase + "relatorio", controle.relatorio.bind(controle));
+
 // 🔹 Formulário de edição
 router.get("/" + caminhobase + "edt/:id", controle.openEdit.bind(controle));
 router.post(

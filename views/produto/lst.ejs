@@ -19,7 +19,10 @@
           placeholder="Pesquisar produto..."
           onkeyup="filtrarTabela()" />
       </div>
-      <a href="/produto/add"><button>+ Novo Produto</button></a>
+      <div class="top-bar-acoes">
+        <a href="/produto/relatorio" target="_blank" class="btn-pdf">🖨️ Gerar PDF</a>
+        <a href="/produto/add"><button>+ Novo Produto</button></a>
+      </div>
     </div>
 
     <table id="tabelaProdutos">
@@ -83,13 +86,17 @@
   <%- include('../rodape.ejs') %>
 
   <script>
+    function removerAcentos(texto) {
+      return (texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
     function filtrarTabela() {
       const input = document.getElementById("searchInput");
-      const filtro = input.value.toLowerCase();
+      const filtro = removerAcentos(input.value);
       const linhas = document.querySelectorAll("#tabelaProdutos tbody tr");
 
       linhas.forEach(linha => {
-        const texto = linha.innerText.toLowerCase();
+        const texto = removerAcentos(linha.innerText);
         linha.style.display = texto.includes(filtro) ? "" : "none";
       });
     }

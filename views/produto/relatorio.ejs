@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório de Estoque - Novo Belém</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      background: #eef2f8;
+      color: #1f2d3d;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      max-width: 980px;
+      margin: 0 auto 22px;
+      padding: 14px 4px 0;
+    }
+
+    .toolbar button {
+      background: linear-gradient(135deg, #0055aa 0%, #0066cc 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 85, 170, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .toolbar button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 85, 170, 0.4);
+    }
+
+    .toolbar .voltar {
+      background: #fff;
+      color: #0055aa;
+      border: 1px solid #d6e0ee;
+      text-decoration: none;
+      box-shadow: none;
+    }
+
+    .relatorio {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e3e9f2;
+      box-shadow: 0 10px 28px rgba(0, 43, 85, 0.1);
+      padding: 38px 42px;
+      margin-bottom: 30px;
+    }
+
+    .relatorio-cabecalho {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 3px solid #002b55;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+    }
+
+    .relatorio-cabecalho .marca {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .relatorio-cabecalho .marca img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid #e3e9f2;
+    }
+
+    .relatorio-cabecalho h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #002b55;
+      line-height: 1.3;
+    }
+
+    .relatorio-cabecalho h1 span {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #5b6b82;
+    }
+
+    .relatorio-data {
+      text-align: right;
+      font-size: 13px;
+      color: #5b6b82;
+      line-height: 1.7;
+    }
+
+    .relatorio-data strong {
+      color: #002b55;
+    }
+
+    .relatorio-titulo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #002b55;
+      margin-bottom: 6px;
+    }
+
+    .relatorio-subtitulo {
+      font-size: 14px;
+      color: #5b6b82;
+      margin-bottom: 20px;
+    }
+
+    .resumo-estoque {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .resumo-item {
+      background: #f6f8fc;
+      border: 1px solid #e3e9f2;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .resumo-item .resumo-valor {
+      font-size: 24px;
+      font-weight: 800;
+      color: #002b55;
+      line-height: 1.2;
+    }
+
+    .resumo-item .resumo-label {
+      font-size: 12.5px;
+      color: #5b6b82;
+      font-weight: 500;
+    }
+
+    .resumo-item.alerta .resumo-valor {
+      color: #d62828;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    thead th {
+      background: #002b55;
+      color: #fff;
+      text-align: left;
+      padding: 11px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    thead th:first-child {
+      border-top-left-radius: 8px;
+    }
+
+    thead th:last-child {
+      border-top-right-radius: 8px;
+    }
+
+    tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e3e9f2;
+      color: #1f2d3d;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f6f8fc;
+    }
+
+    tbody tr.linha-baixo td {
+      background: #fdeaea;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status.ok {
+      background: #e6f7ee;
+      color: #15803d;
+      border: 1px solid #bfe6d0;
+    }
+
+    .status.baixo {
+      background: #fdeaea;
+      color: #c81e1e;
+      border: 1px solid #f6caca;
+      font-weight: 700;
+    }
+
+    .rodape-relatorio {
+      margin-top: 26px;
+      padding-top: 14px;
+      border-top: 1px solid #e3e9f2;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12.5px;
+      color: #7c869c;
+    }
+
+    .vazio {
+      padding: 30px 0;
+      text-align: center;
+      color: #5b6b82;
+      font-size: 15px;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .toolbar {
+        display: none;
+      }
+
+      .relatorio {
+        box-shadow: none;
+        border: none;
+        max-width: 100%;
+        margin: 0;
+        padding: 20px 10px;
+      }
+    }
+
+    @page {
+      margin: 16mm 14mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a href="/produto/lst" class="voltar toolbar-voltar">↩ Voltar para Produtos</a>
+    <button type="button" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  </div>
+
+  <div class="relatorio">
+    <div class="relatorio-cabecalho">
+      <div class="marca">
+        <img src="/img/logo.png" alt="Logo Novo Belém">
+        <h1>Novo Belém<br><span>Argamassa e Ferragem</span></h1>
+      </div>
+      <div class="relatorio-data">
+        <strong>Relatório de Estoque</strong><br>
+        Gerado em: <%= geradoEm.toLocaleDateString('pt-BR') %> às
+        <%= geradoEm.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) %>
+      </div>
+    </div>
+
+    <h2 class="relatorio-titulo">Estoque de Produtos</h2>
+    <p class="relatorio-subtitulo">
+      Relação completa de produtos cadastrados, preços e quantidades disponíveis.
+      Produtos com <%= limiteBaixo %> unidades ou menos são considerados de baixo estoque.
+    </p>
+
+    <div class="resumo-estoque">
+      <div class="resumo-item">
+        <div class="resumo-valor"><%= totalProdutos %></div>
+        <div class="resumo-label">Total de produtos</div>
+      </div>
+      <div class="resumo-item alerta">
+        <div class="resumo-valor"><%= baixoEstoque %></div>
+        <div class="resumo-label">Produtos com baixo estoque</div>
+      </div>
+    </div>
+
+    <% if (produtos.length === 0) { %>
+      <p class="vazio">Nenhum produto cadastrado no momento.</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th>Produto</th>
+            <th>Categoria</th>
+            <th style="width:120px;">Preço</th>
+            <th style="width:110px;">Quantidade</th>
+            <th style="width:150px;">Situação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% produtos.forEach((produto, index) => { %>
+            <tr class="<%= produto.quantidade <= limiteBaixo ? 'linha-baixo' : '' %>">
+              <td><%= index + 1 %></td>
+              <td><strong><%= produto.nome %></strong></td>
+              <td><%= produto.categoria ? produto.categoria.nome : '—' %></td>
+              <td>R$ <%= Number(produto.preco).toFixed(2) %></td>
+              <td><%= produto.quantidade %></td>
+              <td>
+                <% if (produto.quantidade <= limiteBaixo) { %>
+                  <span class="status baixo">⚠ Baixo estoque</span>
+                <% } else { %>
+                  <span class="status ok">OK</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+
+    <div class="rodape-relatorio">
+      <span>Novo Belém - Argamassa e Ferragem</span>
+      <span>Documento gerado pelo Painel Administrativo</span>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("load", function () {
+      setTimeout(function () { window.print(); }, 400);
+    });
+  </script>
+</body>
+</html>

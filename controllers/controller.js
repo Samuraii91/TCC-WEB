@@ -8,7 +8,8 @@ export default class Controller {
   siteIndex = async (req, res) => {
     try {
       const categorias = await Categoria.find()
-      const produtos = await Produto.find().populate('categoria')
+      // Produtos fora de estoque não aparecem na listagem pública do site
+      const produtos = (await Produto.find().populate('categoria')).filter(p => p.quantidade > 0)
 
       res.render('site/index', { categorias, produtos })
     } catch (erro) {

@@ -121,7 +121,8 @@ section[id] {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .logo-icon {
@@ -197,7 +198,8 @@ section[id] {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
+  flex: 1 1 0;
+  justify-content: flex-end;
 }
 
 .dark-mode-btn {
@@ -311,6 +313,55 @@ section[id] {
 .busca-bar .busca-select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+}
+
+.busca-sugestao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 860px;
+  margin: 12px auto 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 8px 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.busca-sugestao .btn-sugestao {
+  background: var(--azul-suave);
+  color: var(--azul);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--fonte);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.busca-sugestao .btn-sugestao:hover {
+  background: linear-gradient(135deg, var(--azul) 0%, var(--azul-medio) 100%);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+
+.nenhum-resultado {
+  display: none;
+  margin-top: 10px;
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--texto-suave);
+  background: var(--superficie);
+  border: 1px dashed var(--borda);
+  border-radius: var(--raio);
 }
 
 /* ======================================================
@@ -626,7 +677,7 @@ section[id] {
 }
 
 .badge-estoque.ok {
-  background: var(--sucesso);
+  background: var(--azul-claro);
 }
 
 .badge-estoque.esgotado {
@@ -911,6 +962,150 @@ body.modal-aberto {
   height: 100%;
   min-height: 380px;
   border: 0;
+}
+
+/* ======================================================
+   FALE CONOSCO (card + modal)
+====================================================== */
+.grid-fale-conosco {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.card-fale-conosco {
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-fale-conosco:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--azul-medio);
+}
+
+.card-fale-conosco:focus-visible {
+  outline: none;
+  border-color: var(--azul-medio);
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.25);
+}
+
+.fale-conosco-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fale-conosco-cta p {
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.fale-conosco-vermais {
+  color: var(--azul);
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.card-fale-conosco:hover .fale-conosco-vermais {
+  color: var(--azul-medio);
+}
+
+.modal-contato {
+  max-width: 520px;
+}
+
+.modal-contato-corpo {
+  padding: 34px 32px;
+}
+
+.modal-contato-cabecalho {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.modal-contato-cabecalho .icon-grande {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.modal-contato-cabecalho h3 {
+  color: var(--azul-escuro);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.modal-contato-cabecalho p {
+  color: var(--texto-suave);
+  font-size: 14.5px;
+  line-height: 1.7;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.modal-contato-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contato-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--fundo-cinza);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm, 12px);
+  padding: 16px 18px;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.contato-item:hover {
+  background: var(--azul-suave);
+  border-color: var(--azul-medio);
+  transform: translateX(4px);
+}
+
+.contato-icone {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.contato-texto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.contato-texto strong {
+  color: var(--azul-escuro);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.contato-texto small {
+  color: var(--texto-suave);
+  font-size: 13.5px;
+  word-break: break-word;
+}
+
+.contato-seta {
+  color: var(--azul);
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
 /* ======================================================
@@ -1249,6 +1444,28 @@ body.dark-mode .busca-bar .busca-select:hover {
   background: #1b2c47;
 }
 
+body.dark-mode .busca-sugestao {
+  background: rgba(15, 26, 44, 0.95);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--texto-suave);
+}
+
+body.dark-mode .busca-sugestao .btn-sugestao {
+  background: var(--azul-suave);
+  color: #a9c6ec;
+  border-color: var(--borda);
+}
+
+body.dark-mode .busca-sugestao .btn-sugestao:hover {
+  background: linear-gradient(135deg, #1a3f6b 0%, #2a5c9e 100%);
+  color: #fff;
+}
+
+body.dark-mode .nenhum-resultado {
+  background: var(--superficie);
+  border-color: var(--borda);
+}
+
 body.dark-mode .pill-categoria {
   background: var(--superficie);
   border-color: var(--borda);
@@ -1329,6 +1546,27 @@ body.dark-mode .modal-info .categoria {
   color: #a9c6ec;
 }
 
+body.dark-mode .contato-item {
+  background: var(--superficie);
+}
+
+body.dark-mode .contato-item:hover {
+  background: var(--azul-suave);
+}
+
+body.dark-mode .contato-icone {
+  background: var(--fundo);
+}
+
+body.dark-mode .modal-contato-cabecalho h3,
+body.dark-mode .contato-texto strong {
+  color: #d9e8ff;
+}
+
+body.dark-mode .fale-conosco-vermais {
+  color: var(--azul-claro);
+}
+
 body.dark-mode .voltar-topo {
   background: #1a3f6b;
   color: #fff;
@@ -1363,6 +1601,11 @@ body.dark-mode .voltar-topo {
 
   .logo-container {
     flex: 1;
+  }
+
+  .header-acoes {
+    flex: none;
+    margin-left: auto;
   }
 
   .menu-mobile {

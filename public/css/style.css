@@ -751,6 +751,36 @@ a {
   box-shadow: 0 10px 26px rgba(79, 70, 229, 0.5);
 }
 
+.top-bar-acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-pdf {
+  display: inline-block;
+  background: var(--card-2);
+  color: var(--azul-claro);
+  border: 1px solid var(--borda-forte);
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: var(--fonte);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.btn-pdf:hover {
+  background: var(--gradiente);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.5);
+}
+
 /* ======================================================
    TABELAS
 ====================================================== */
@@ -889,7 +919,7 @@ table img {
    DETALHES DO ORÇAMENTO
 ====================================================== */
 .detalhes-contato {
-  background: var(--card-1, #fff);
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: var(--raio, 14px);
   padding: 22px 24px;

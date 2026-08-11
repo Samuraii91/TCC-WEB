@@ -47,6 +47,26 @@ export default class ProdutoController {
     }
   }
 
+  // 📌 Relatório de estoque (imprimir / salvar em PDF)
+  async relatorio(req, res) {
+    try {
+      const limiteBaixo = 5;
+      const produtos = await Produto.find().populate("categoria").sort({ nome: 1 });
+      const baixoEstoque = produtos.filter(p => p.quantidade <= limiteBaixo).length;
+
+      res.render("produto/relatorio", {
+        produtos,
+        limiteBaixo,
+        totalProdutos: produtos.length,
+        baixoEstoque,
+        geradoEm: new Date()
+      });
+    } catch (erro) {
+      console.error("Erro ao gerar relatório de estoque:", erro);
+      res.status(500).send("Erro ao gerar o relatório de estoque");
+    }
+  }
+
   // 📌 Abrir form de edição
   async openEdit(req, res) {
     try {

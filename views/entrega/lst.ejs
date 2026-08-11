@@ -70,13 +70,17 @@
   <%- include('../rodape.ejs') %>
 
   <script>
+    function removerAcentos(texto) {
+      return (texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
     function filtrarTabela() {
       const input = document.getElementById("searchInput");
-      const filtro = input.value.toLowerCase();
+      const filtro = removerAcentos(input.value);
       const linhas = document.querySelectorAll("#tabelaEntregas tbody tr");
 
       linhas.forEach(linha => {
-        const texto = linha.innerText.toLowerCase();
+        const texto = removerAcentos(linha.innerText);
         linha.style.display = texto.includes(filtro) ? "" : "none";
       });
     }

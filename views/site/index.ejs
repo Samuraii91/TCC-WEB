@@ -15,6 +15,13 @@
 
     <% const normalizarNome = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); %>
     <% const notaMedia = (av) => (av && av.length) ? (av.reduce((s, v) => s + v, 0) / av.length) : 0; %>
+    <% const DADOS_CONTATO = {
+         telefone: "(53) 991027296",
+         telefoneLink: "+5553991027296",
+         email: "profevinicius@gmail.com",
+         whatsappLink: "https://wa.me/5553991027296",
+         whatsappTexto: "Olá! Vim pelo site da Novo Belém e gostaria de mais informações."
+       }; %>
 
     <header class="topo" id="topo-site">
         <div class="topo-linha">
@@ -34,7 +41,7 @@
                 <a href="#produtos">Produtos</a>
                 <a href="#contato">Orçamento</a>
                 <a href="#localizacao">Localização</a>
-                <a href="https://wa.me/5553991027296?text=Ol%C3%A1!%20Quero%20saber%20mais!" target="_blank" rel="noopener">Whatsapp</a>
+                <a href="#fale-conosco">Contatos</a>
             </nav>
 
             <div class="header-acoes">
@@ -50,6 +57,11 @@
                     <option value="categorias">Categorias</option>
                     <option value="produtos">Produtos</option>
                 </select>
+            </div>
+
+            <div class="busca-sugestao" id="buscaSugestao" style="display:none">
+                <span id="sugestaoTexto">Você quis dizer:</span>
+                <button type="button" id="btnSugestao" class="btn-sugestao"></button>
             </div>
         </div>
     </header>
@@ -120,7 +132,7 @@
 
             <div class="grid-produtos">
                 <% produtos.forEach(prod=> { %>
-                    <div class="card-produto" data-categoria="<%= prod.categoria ? normalizarNome(prod.categoria.nome) : '' %>" data-produto-id="<%= prod._id %>">
+                    <div class="card-produto" data-categoria="<%= prod.categoria ? normalizarNome(prod.categoria.nome) : '' %>" data-produto-id="<%= prod._id %>" data-em-estoque="<%= prod.quantidade > 0 ? 'true' : 'false' %>">
                         <div class="img-wrapper">
                             <img src="<%= prod.imagemBase64 ? `data:${prod.mimetype};base64,${prod.imagemBase64}` : 'https://via.placeholder.com/300x200?text=Sem+Imagem' %>"
                                 alt="<%= prod.nome %>">
@@ -128,7 +140,7 @@
                             <% if (prod.quantidade > 0) { %>
                                 <span class="badge-estoque ok">Em estoque</span>
                                 <% } else { %>
-                                    <span class="badge-estoque esgotado">Esgotado</span>
+                                    <span class="badge-estoque esgotado">Fora de estoque</span>
                                     <% } %>
                         </div>
 
@@ -141,10 +153,6 @@
                             <% if (prod.categoria) { %>
                                 <p class="categoria"><%= prod.categoria.nome %></p>
                                 <% } %>
-
-                                <% if (prod.quantidade > 0) { %>
-                                    <p class="quantidade"><%= prod.quantidade %> un. em estoque</p>
-                                    <% } %>
 
                                     <div class="produto-descricao-oculta" style="display:none"><%= prod.descricao || '' %></div>
 
@@ -161,6 +169,10 @@
                     <% if (produtos.length===0) { %>
                         <p class="estado-vazio">Nenhum produto cadastrado ainda.</p>
                         <% } %>
+            </div>
+
+            <div class="nenhum-resultado" id="nenhumResultado" style="display:none">
+                Nenhum resultado encontrado para "<span id="termoNaoEncontrado"></span>".
             </div>
 
             <div class="botoes-paginacao">
@@ -203,6 +215,30 @@
                         width="100%" height="400" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                         title="Mapa - Novo Belém">
                     </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="fale-conosco" class="secao secao-cinza">
+        <div class="container">
+            <h2 class="titulo-secao">Fale Conosco</h2>
+            <p class="subtitulo-secao">Precisa de ajuda que não seja sobre orçamento? Clique no card e veja as formas de contato.</p>
+
+            <div class="grid-fale-conosco">
+                <div class="card-localizacao card-fale-conosco" id="btnAbrirContato" role="button" tabindex="0"
+                    aria-haspopup="dialog" aria-label="Abrir formas de contato">
+                    <div class="localizacao-info">
+                        <div class="info-header">
+                            <span class="icon-grande">💬</span>
+                            <h3>Fale Conosco</h3>
+                        </div>
+                        <p>Ficou com alguma dúvida que não seja sobre orçamento? Entre em contato conosco através de uma das opções abaixo.</p>
+                    </div>
+                    <div class="horario-info fale-conosco-cta">
+                        <p>📞 Telefone &nbsp;•&nbsp; ✉️ E-mail &nbsp;•&nbsp; 💬 WhatsApp</p>
+                        <span class="fale-conosco-vermais">Ver formas de contato →</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -307,6 +343,46 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalContato" aria-hidden="true">
+        <div class="modal-produto modal-contato" role="dialog" aria-modal="true" aria-labelledby="modalContatoTitulo">
+            <button type="button" class="modal-fechar" id="modalContatoFechar" aria-label="Fechar">&times;</button>
+            <div class="modal-contato-corpo">
+                <div class="modal-contato-cabecalho">
+                    <span class="icon-grande">💬</span>
+                    <h3 id="modalContatoTitulo">Fale Conosco</h3>
+                    <p>Ficou com alguma dúvida que não seja sobre orçamento? Escolha a forma de contato que preferir.</p>
+                </div>
+                <div class="modal-contato-lista">
+                    <a href="tel:<%= DADOS_CONTATO.telefoneLink %>" class="contato-item">
+                        <span class="contato-icone">📞</span>
+                        <span class="contato-texto">
+                            <strong>Telefone</strong>
+                            <small><%= DADOS_CONTATO.telefone %></small>
+                        </span>
+                        <span class="contato-seta">→</span>
+                    </a>
+                    <a href="mailto:<%= DADOS_CONTATO.email %>" class="contato-item">
+                        <span class="contato-icone">✉️</span>
+                        <span class="contato-texto">
+                            <strong>E-mail</strong>
+                            <small><%= DADOS_CONTATO.email %></small>
+                        </span>
+                        <span class="contato-seta">→</span>
+                    </a>
+                    <a href="<%= DADOS_CONTATO.whatsappLink %>?text=<%= encodeURIComponent(DADOS_CONTATO.whatsappTexto) %>"
+                        class="contato-item" target="_blank" rel="noopener">
+                        <span class="contato-icone">💬</span>
+                        <span class="contato-texto">
+                            <strong>WhatsApp</strong>
+                            <small>Conversar agora</small>
+                        </span>
+                        <span class="contato-seta">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <a href="https://wa.me/5553991027296?text=Ol%C3%A1!%20Quero%20saber%20mais!" target="_blank" rel="noopener"
         class="whatsapp-float" aria-label="Falar no WhatsApp">
         <svg viewBox="0 0 32 32" aria-hidden="true">
@@ -344,7 +420,7 @@
                     return;
                 }
                 contador++;
-                p.style.display = contador <= produtosVisiveis ? "block" : "none";
+                p.style.display = contador <= produtosVisiveis ? "" : "none";
             });
 
             document.getElementById("btnVerMais").style.display =
@@ -362,7 +438,7 @@
                     return;
                 }
                 contador++;
-                c.style.display = contador <= categoriasVisiveis ? "block" : "none";
+                c.style.display = contador <= categoriasVisiveis ? "" : "none";
             });
 
             document.getElementById("btnVerMaisCategorias").style.display =
@@ -372,9 +448,115 @@
                 categoriasVisiveis > 5 ? "inline-block" : "none";
         }
 
+        // ----- Sugestões de pesquisa ("Você quis dizer?") -----
+        const SINONIMOS = {
+            "luz": ["lampada", "luminaria", "iluminacao", "eletrica", "eletrico"],
+            "iluminacao": ["lampada", "luminaria", "eletrica", "eletrico"],
+            "eletrico": ["eletrica", "tomada", "interruptor", "lampada", "fio"],
+            "eletrica": ["eletrico", "tomada", "interruptor", "lampada", "fio"],
+            "hidraulica": ["cano", "canos", "tubo", "tubos", "conexao", "registro", "torneira"],
+            "encanamento": ["cano", "canos", "tubo", "tubos", "hidraulica"],
+            "cano": ["canos", "tubo", "tubos", "pvc", "conexao"],
+            "canos": ["cano", "tubo", "tubos", "pvc", "conexao"],
+            "tubo": ["tubos", "cano", "canos", "pvc"],
+            "tubos": ["tubo", "cano", "canos", "pvc"],
+            "ferragens": ["ferro", "ferragem", "trelica", "prego", "parafuso"],
+            "ferro": ["ferragem", "ferragens", "trelica", "prego", "parafuso"],
+            "argamassa": ["massa", "reboco", "cimento"],
+            "cimento": ["argamassa", "massa"],
+            "areia": ["brita", "pedra", "pedrisco"],
+            "pintura": ["tinta", "esmalte", "latex", "laca"],
+            "tinta": ["pintura", "esmalte", "latex", "laca"],
+            "construcao": ["cimento", "areia", "argamassa", "tijolo", "ferragem", "ferragens"]
+        };
+
+        function variantesTermo(t) {
+            const set = new Set();
+            if (t) set.add(t);
+            if (t && t.length > 2 && t.endsWith("s")) set.add(t.slice(0, -1));
+            else if (t) set.add(t + "s");
+            (SINONIMOS[t] || []).forEach(x => set.add(x));
+            return [...set];
+        }
+
+        function levenshtein(a, b) {
+            const m = a.length, n = b.length;
+            if (m === 0) return n;
+            if (n === 0) return m;
+            let anterior = Array.from({ length: n + 1 }, (_, i) => i);
+            for (let i = 1; i <= m; i++) {
+                const atual = [i];
+                for (let j = 1; j <= n; j++) {
+                    const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+                    atual[j] = Math.min(atual[j - 1] + 1, anterior[j] + 1, anterior[j - 1] + custo);
+                }
+                anterior = atual;
+            }
+            return anterior[n];
+        }
+
+        function similaridade(a, b) {
+            if (!a || !b) return 0;
+            if (a === b) return 1;
+            const max = Math.max(a.length, b.length);
+            if (max === 0) return 1;
+            return 1 - levenshtein(a, b) / max;
+        }
+
+        // Lista de candidatos baseada nos produtos/categorias realmente cadastrados
+        const candidatos = new Set();
+        const mapaExibicao = {};
+
+        function adicionarCandidato(texto) {
+            const n = removerAcentos(texto.toLowerCase()).trim();
+            if (!n) return;
+            candidatos.add(n);
+            if (!mapaExibicao[n]) mapaExibicao[n] = texto.trim();
+        }
+
+        produtos.forEach(p => {
+            adicionarCandidato(p.querySelector("h3").textContent);
+            const catEl = p.querySelector(".categoria");
+            if (catEl) adicionarCandidato(catEl.textContent.replace(/Categoria:\s*/i, "").trim());
+        });
+        categoriasLista.forEach(c => adicionarCandidato(c.querySelector("h3").textContent));
+
+        function melhorSugestao(termo) {
+            if (!termo) return null;
+            const termos = variantesTermo(termo);
+            let melhor = null;
+            let melhorScore = 0;
+
+            candidatos.forEach(cand => {
+                const palavras = cand.split(/\s+/);
+                let score = similaridade(termo, cand);
+
+                palavras.forEach(w => {
+                    score = Math.max(score, similaridade(termo, w));
+                });
+
+                termos.forEach(v => {
+                    if (v && cand.includes(v)) score = Math.max(score, 0.85);
+                    if (v) {
+                        palavras.forEach(w => {
+                            if (w.includes(v) || (v.length > 2 && v.includes(w))) score = Math.max(score, 0.85);
+                        });
+                    }
+                });
+
+                if (score > melhorScore) {
+                    melhorScore = score;
+                    melhor = cand;
+                }
+            });
+
+            return melhorScore >= 0.55 ? melhor : null;
+        }
+
         function aplicarFiltro() {
             const termo = removerAcentos(inputPesquisa.value.toLowerCase().trim());
             const filtro = filtroPesquisa.value;
+            const termos = variantesTermo(termo);
 
             secaoCategorias.style.display = (filtro === "produtos") ? "none" : "";
             secaoProdutos.style.display = (filtro === "categorias") ? "none" : "";
@@ -382,7 +564,8 @@
             categoriasLista.forEach(card => {
                 const nome = removerAcentos(card.querySelector("h3").textContent.toLowerCase());
                 const desc = removerAcentos(card.querySelector("p").textContent.toLowerCase());
-                card.dataset.match = (nome.includes(termo) || desc.includes(termo)) ? "1" : "0";
+                const bate = termos.some(t => t && (nome.includes(t) || desc.includes(t)));
+                card.dataset.match = (termo === "" || bate) ? "1" : "0";
             });
 
             produtos.forEach(card => {
@@ -390,7 +573,8 @@
                 let categoria = "";
                 const catEl = card.querySelector(".categoria");
                 if (catEl) categoria = removerAcentos(catEl.textContent.replace(/Categoria:\s*/i, "").toLowerCase());
-                const termoOK = nome.includes(termo) || categoria.includes(termo);
+                const bate = termos.some(t => t && (nome.includes(t) || categoria.includes(t)));
+                const termoOK = termo === "" || bate;
                 const catOK = categoriaAtiva === "todos" || card.dataset.categoria === categoriaAtiva;
                 card.dataset.match = (termoOK && catOK) ? "1" : "0";
             });
@@ -400,6 +584,35 @@
 
             atualizarProdutos();
             atualizarCategorias();
+
+            // ----- Mensagem de nenhum resultado + sugestão -----
+            let matchProd = 0, matchCat = 0;
+            produtos.forEach(card => { if (card.dataset.match === "1") matchProd++; });
+            categoriasLista.forEach(card => { if (card.dataset.match === "1") matchCat++; });
+            const visiveis = filtro === "produtos" ? matchProd
+                : filtro === "categorias" ? matchCat
+                    : matchProd + matchCat;
+
+            const nenhumResultado = document.getElementById("nenhumResultado");
+            const buscaSugestao = document.getElementById("buscaSugestao");
+
+            if (termo !== "" && visiveis === 0) {
+                document.getElementById("termoNaoEncontrado").textContent = inputPesquisa.value.trim();
+                nenhumResultado.style.display = "block";
+
+                const sugestao = melhorSugestao(termo);
+                if (sugestao) {
+                    const display = mapaExibicao[sugestao] || sugestao;
+                    document.getElementById("btnSugestao").textContent = display;
+                    document.getElementById("btnSugestao").dataset.sugestao = sugestao;
+                    buscaSugestao.style.display = "flex";
+                } else {
+                    buscaSugestao.style.display = "none";
+                }
+            } else {
+                nenhumResultado.style.display = "none";
+                buscaSugestao.style.display = "none";
+            }
         }
 
         inputPesquisa.addEventListener("input", aplicarFiltro);
@@ -435,6 +648,20 @@
         });
 
         aplicarFiltro();
+
+        // ----- Pesquisa pela sugestão ("Você quis dizer?") -----
+        const btnSugestao = document.getElementById("btnSugestao");
+        if (btnSugestao) {
+            btnSugestao.addEventListener("click", function () {
+                const sugestao = this.dataset.sugestao;
+                const display = mapaExibicao[sugestao];
+                if (!display) return;
+                inputPesquisa.value = display;
+                filtroPesquisa.value = "todos";
+                aplicarFiltro();
+                secaoProdutos.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        }
 
         // ----- Pré-seleciona o produto clicado no formulário de orçamento -----
         document.querySelectorAll(".btn-orcamento").forEach(btn => {
@@ -485,8 +712,7 @@
             const preco = card.querySelector(".preco").textContent.trim();
             const catEl = card.querySelector(".categoria");
             const categoria = catEl ? catEl.textContent.trim() : "";
-            const qtdEl = card.querySelector(".quantidade");
-            const emEstoque = qtdEl !== null;
+            const emEstoque = card.dataset.emEstoque === "true";
             const desc = card.querySelector(".produto-descricao-oculta")
                 ? card.querySelector(".produto-descricao-oculta").textContent.trim()
                 : "";
@@ -504,7 +730,7 @@
             catModal.style.display = categoria ? "" : "none";
 
             const estoqueModal = document.getElementById("modalProdutoEstoque");
-            estoqueModal.textContent = emEstoque ? "Em estoque" : "Esgotado";
+            estoqueModal.textContent = emEstoque ? "Em estoque" : "Fora de estoque";
             estoqueModal.className = "badge-estoque " + (emEstoque ? "ok" : "esgotado");
 
             document.getElementById("modalProdutoDescricao").textContent =
@@ -552,6 +778,43 @@
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") fecharModal();
         });
+
+        // ----- Modal Fale Conosco -----
+        const btnAbrirContato = document.getElementById("btnAbrirContato");
+        const modalContato = document.getElementById("modalContato");
+        const btnContatoFechar = document.getElementById("modalContatoFechar");
+
+        function fecharContato() {
+            modalContato.classList.remove("aberto");
+            modalContato.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("modal-aberto");
+        }
+
+        function abrirContato() {
+            modalContato.classList.add("aberto");
+            modalContato.setAttribute("aria-hidden", "false");
+            document.body.classList.add("modal-aberto");
+        }
+
+        if (btnAbrirContato) {
+            btnAbrirContato.addEventListener("click", abrirContato);
+            btnAbrirContato.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    abrirContato();
+                }
+            });
+        }
+
+        if (btnContatoFechar) {
+            btnContatoFechar.addEventListener("click", fecharContato);
+        }
+
+        if (modalContato) {
+            modalContato.addEventListener("click", (e) => {
+                if (e.target === modalContato) fecharContato();
+            });
+        }
 
         // ----- Avaliar produto -----
         const btnAvaliar = document.getElementById("btnAvaliar");
