@@ -205,6 +205,10 @@
       background: #fdeaea;
     }
 
+    tbody tr.linha-falta td {
+      background: #fef2f2;
+    }
+
     .status {
       display: inline-block;
       padding: 5px 14px;
@@ -219,11 +223,77 @@
       border: 1px solid #bfe6d0;
     }
 
+    .status.falta {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      font-weight: 700;
+    }
+
     .status.baixo {
       background: #fdeaea;
       color: #c81e1e;
       border: 1px solid #f6caca;
       font-weight: 700;
+    }
+
+    .filtro-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      padding: 16px 20px;
+      background: #f6f8fc;
+      border: 1px solid #e3e9f2;
+      border-radius: 12px;
+    }
+
+    .filtro-bar label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #3a4a60;
+    }
+
+    .filtro-bar select {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid #d6e0ee;
+      font-size: 13.5px;
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #1f2d3d;
+      cursor: pointer;
+    }
+
+    .filtro-bar select:focus {
+      outline: none;
+      border-color: #0055aa;
+      box-shadow: 0 0 0 3px rgba(0, 85, 170, 0.15);
+    }
+
+    .filtro-bar button {
+      background: linear-gradient(135deg, #0055aa 0%, #0066cc 100%);
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .filtro-bar button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 85, 170, 0.35);
+    }
+
+    .filtro-bar .limpar {
+      background: #fff;
+      color: #0055aa;
+      border: 1px solid #d6e0ee;
     }
 
     .rodape-relatorio {
@@ -250,6 +320,10 @@
       }
 
       .toolbar {
+        display: none;
+      }
+
+      .filtro-bar {
         display: none;
       }
 
@@ -292,14 +366,41 @@
       Produtos com <%= limiteBaixo %> unidades ou menos são considerados de baixo estoque.
     </p>
 
+    <form class="filtro-bar" method="GET" action="/produto/relatorio">
+      <label>Categoria:</label>
+      <select name="categoria">
+        <option value="">Todas as categorias</option>
+        <% categorias.forEach(cat => { %>
+          <option value="<%= cat._id %>" <%= filtroCategoria === String(cat._id) ? 'selected' : '' %>><%= cat.nome %></option>
+        <% }) %>
+      </select>
+
+      <label>Estoque:</label>
+      <select name="estoque">
+        <option value="" <%= filtroEstoque === '' ? 'selected' : '' %>>Todos os produtos</option>
+        <option value="normal" <%= filtroEstoque === 'normal' ? 'selected' : '' %>>Estoque normal</option>
+        <option value="baixo" <%= filtroEstoque === 'baixo' ? 'selected' : '' %>>Baixo estoque</option>
+        <option value="falta" <%= filtroEstoque === 'falta' ? 'selected' : '' %>>Em falta</option>
+      </select>
+
+      <button type="submit">Aplicar filtros</button>
+      <% if (filtroCategoria || filtroEstoque) { %>
+        <a href="/produto/relatorio" class="limpar" style="text-decoration:none; padding:9px 18px; border-radius:999px; font-size:13.5px; font-weight:600; font-family:'Poppins',sans-serif; display:inline-block;">Limpar filtros</a>
+      <% } %>
+    </form>
+
     <div class="resumo-estoque">
       <div class="resumo-item">
         <div class="resumo-valor"><%= totalProdutos %></div>
         <div class="resumo-label">Total de produtos</div>
       </div>
       <div class="resumo-item alerta">
+        <div class="resumo-valor"><%= emFalta %></div>
+        <div class="resumo-label">Produtos em falta</div>
+      </div>
+      <div class="resumo-item alerta">
         <div class="resumo-valor"><%= baixoEstoque %></div>
-        <div class="resumo-label">Produtos com baixo estoque</div>
+        <div class="resumo-label">Baixo estoque</div>
       </div>
     </div>
 
@@ -319,17 +420,19 @@
         </thead>
         <tbody>
           <% produtos.forEach((produto, index) => { %>
-            <tr class="<%= produto.quantidade <= limiteBaixo ? 'linha-baixo' : '' %>">
+            <tr class="<%= Number(produto.quantidade) === 0 ? 'linha-falta' : (Number(produto.quantidade) <= limiteBaixo ? 'linha-baixo' : '') %>">
               <td><%= index + 1 %></td>
               <td><strong><%= produto.nome %></strong></td>
               <td><%= produto.categoria ? produto.categoria.nome : '—' %></td>
               <td>R$ <%= Number(produto.preco).toFixed(2) %></td>
-              <td><%= produto.quantidade %></td>
+              <td><%= Number(produto.quantidade) === 0 ? '0' : produto.quantidade %></td>
               <td>
-                <% if (produto.quantidade <= limiteBaixo) { %>
-                  <span class="status baixo">⚠ Baixo estoque</span>
+                <% if (Number(produto.quantidade) === 0) { %>
+                  <span class="status falta">EM FALTA</span>
+                <% } else if (Number(produto.quantidade) <= limiteBaixo) { %>
+                  <span class="status baixo">BAIXO ESTOQUE</span>
                 <% } else { %>
-                  <span class="status ok">OK</span>
+                  <span class="status ok">ESTOQUE NORMAL</span>
                 <% } %>
               </td>
             </tr>
@@ -346,7 +449,10 @@
 
   <script>
     window.addEventListener("load", function () {
-      setTimeout(function () { window.print(); }, 400);
+      var temFiltros = '<%= filtroCategoria || filtroEstoque %>';
+      if (!temFiltros) {
+        setTimeout(function () { window.print(); }, 400);
+      }
     });
   </script>
 </body>

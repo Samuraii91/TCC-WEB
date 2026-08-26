@@ -843,6 +843,14 @@ table tbody tr:last-child td {
   background-color: rgba(239, 68, 68, 0.2);
 }
 
+.linha-falta td {
+  background-color: rgba(153, 27, 27, 0.12);
+}
+
+.linha-falta:hover td {
+  background-color: rgba(153, 27, 27, 0.2);
+}
+
 table img {
   border-radius: 10px;
   border: 1px solid var(--borda);
@@ -883,6 +891,14 @@ table img {
   background: rgba(239, 68, 68, 0.14);
   color: #f87171;
   border-color: rgba(239, 68, 68, 0.4);
+}
+
+.badge-em-falta {
+  background: rgba(153, 27, 27, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.5);
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 .badge-estoque-ok {

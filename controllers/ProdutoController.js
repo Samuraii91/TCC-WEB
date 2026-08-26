@@ -51,14 +51,39 @@ export default class ProdutoController {
   async relatorio(req, res) {
     try {
       const limiteBaixo = 5;
-      const produtos = await Produto.find().populate("categoria").sort({ nome: 1 });
-      const baixoEstoque = produtos.filter(p => p.quantidade <= limiteBaixo).length;
+      const filtroCategoria = req.query.categoria || "";
+      const filtroEstoque = req.query.estoque || "";
+
+      const categorias = await Categoria.find().sort({ nome: 1 });
+
+      const filtroMongo = {};
+      if (filtroCategoria) {
+        filtroMongo.categoria = filtroCategoria;
+      }
+
+      let produtos = await Produto.find(filtroMongo).populate("categoria").sort({ nome: 1 });
+
+      if (filtroEstoque === "falta") {
+        produtos = produtos.filter(p => Number(p.quantidade) === 0);
+      } else if (filtroEstoque === "baixo") {
+        produtos = produtos.filter(p => Number(p.quantidade) > 0 && Number(p.quantidade) <= limiteBaixo);
+      } else if (filtroEstoque === "normal") {
+        produtos = produtos.filter(p => Number(p.quantidade) > limiteBaixo);
+      }
+
+      const totalProdutos = produtos.length;
+      const emFalta = produtos.filter(p => Number(p.quantidade) === 0).length;
+      const baixoEstoque = produtos.filter(p => Number(p.quantidade) > 0 && Number(p.quantidade) <= limiteBaixo).length;
 
       res.render("produto/relatorio", {
         produtos,
         limiteBaixo,
-        totalProdutos: produtos.length,
+        totalProdutos,
+        emFalta,
         baixoEstoque,
+        categorias,
+        filtroCategoria,
+        filtroEstoque,
         geradoEm: new Date()
       });
     } catch (erro) {

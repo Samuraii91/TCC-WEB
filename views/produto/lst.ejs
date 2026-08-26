@@ -39,15 +39,17 @@
       </thead>
       <tbody>
         <% produtos.forEach(produto => { %>
-          <tr class="<%= produto.quantidade <= 5 ? 'linha-alerta' : '' %>">
+          <tr class="<%= Number(produto.quantidade) === 0 ? 'linha-falta' : (Number(produto.quantidade) <= 5 ? 'linha-alerta' : '') %>">
             <td><%= produto.nome %></td>
             <td><%= produto.descricao %></td>
-            <td>R$ <%= produto.preco.toFixed(2) %></td>
+            <td>R$ <%= Number(produto.preco).toFixed(2) %></td>
             <td><%= produto.categoria ? produto.categoria.nome : '' %></td>
 
-            <!-- Quantidade exibida, com alerta de estoque baixo -->
+            <!-- Quantidade exibida, com alerta de estoque -->
             <td>
-              <% if (produto.quantidade <= 5) { %>
+              <% if (Number(produto.quantidade) === 0) { %>
+                <span class="badge badge-em-falta">EM FALTA</span>
+              <% } else if (Number(produto.quantidade) <= 5) { %>
                 <span class="badge badge-estoque-baixo">⚠ <%= produto.quantidade %></span>
               <% } else { %>
                 <span class="badge badge-estoque-ok"><%= produto.quantidade %></span>
