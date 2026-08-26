@@ -67,6 +67,8 @@ export default class ProdutoController {
         produtos = produtos.filter(p => Number(p.quantidade) === 0);
       } else if (filtroEstoque === "baixo") {
         produtos = produtos.filter(p => Number(p.quantidade) > 0 && Number(p.quantidade) <= limiteBaixo);
+      } else if (filtroEstoque === "problema") {
+        produtos = produtos.filter(p => Number(p.quantidade) <= limiteBaixo);
       } else if (filtroEstoque === "normal") {
         produtos = produtos.filter(p => Number(p.quantidade) > limiteBaixo);
       }

@@ -379,6 +379,7 @@
       <select name="estoque">
         <option value="" <%= filtroEstoque === '' ? 'selected' : '' %>>Todos os produtos</option>
         <option value="normal" <%= filtroEstoque === 'normal' ? 'selected' : '' %>>Estoque normal</option>
+        <option value="problema" <%= filtroEstoque === 'problema' ? 'selected' : '' %>>Baixo estoque e em falta</option>
         <option value="baixo" <%= filtroEstoque === 'baixo' ? 'selected' : '' %>>Baixo estoque</option>
         <option value="falta" <%= filtroEstoque === 'falta' ? 'selected' : '' %>>Em falta</option>
       </select>
