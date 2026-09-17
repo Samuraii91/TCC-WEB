@@ -53,15 +53,15 @@ export default class Controller {
     try {
       const { nome, email, telefone, produto, quantidade, mensagem } = req.body
 
-      const nomesProdutos = typeof req.body['produtoItem[]'] === 'string'
-        ? [req.body['produtoItem[]']]
-        : (req.body['produtoItem[]'] || [])
-      const quantidades = typeof req.body['quantidadeItem[]'] === 'string'
-        ? [req.body['quantidadeItem[]']]
-        : (req.body['quantidadeItem[]'] || [])
-      const precos = typeof req.body['precoItem[]'] === 'string'
-        ? [req.body['precoItem[]']]
-        : (req.body['precoItem[]'] || [])
+      const nomesProdutos = typeof req.body.produtoItem === 'string'
+        ? [req.body.produtoItem]
+        : (req.body.produtoItem || [])
+      const quantidades = typeof req.body.quantidadeItem === 'string'
+        ? [req.body.quantidadeItem]
+        : (req.body.quantidadeItem || [])
+      const precos = typeof req.body.precoItem === 'string'
+        ? [req.body.precoItem]
+        : (req.body.precoItem || [])
 
       const itens = nomesProdutos
         .map((nomeItem, i) => {

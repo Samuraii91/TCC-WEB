@@ -79,6 +79,14 @@ a {
   z-index: 20;
 }
 
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  line-height: 0;
+}
+
 .sidebar-header {
   display: flex;
   align-items: center;
