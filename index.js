@@ -52,6 +52,11 @@ app.use('/', servicoRoutes);     // Serviços
 app.use('/', authRoutes);        // Autenticação
 app.use('/', contatoRoutes);     // Orçamentos
 app.use('/', siteRoutes);        // Rotas do site
+// Healthcheck simples (usado pelo autoping e por monitoramentos)
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Página inicial: se já estiver logado, vai para o painel; senão, para o login
 app.get('/', (req, res) => {
   if (req.session.usuario) {
@@ -65,5 +70,19 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
+
+// Autoping para evitar o spin-down do Render (plano gratuito)
+// O Render define RENDER_EXTERNAL_URL automaticamente; localmente usamos o próprio host.
+const URL_SELF = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+const INTERVALO_PING = 12 * 60 * 1000; // 12 minutos (menor que os 15 min de inatividade)
+
+setInterval(async () => {
+  try {
+    const resposta = await fetch(`${URL_SELF}/healthcheck`);
+    console.log(`[autoping] ${new Date().toLocaleString('pt-BR')} - status ${resposta.status}`);
+  } catch (erro) {
+    console.error(`[autoping] ${new Date().toLocaleString('pt-BR')} - falha: ${erro.message}`);
+  }
+}, INTERVALO_PING);
 
 export default app;
