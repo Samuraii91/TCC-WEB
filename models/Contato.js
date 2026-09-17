@@ -6,6 +6,12 @@ const ContatoSchema = new mongoose.Schema({
   telefone: { type: String, required: true },
   produto: { type: String },
   quantidade: { type: Number },
+  itens: [{
+    produto: { type: String },
+    quantidade: { type: Number },
+    preco: { type: Number }
+  }],
+  total: { type: Number },
   mensagem: { type: String },
   status: {
     type: String,

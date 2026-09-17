@@ -52,12 +52,38 @@ export default class Controller {
   salvarContato = async (req, res) => {
     try {
       const { nome, email, telefone, produto, quantidade, mensagem } = req.body
+
+      const nomesProdutos = typeof req.body['produtoItem[]'] === 'string'
+        ? [req.body['produtoItem[]']]
+        : (req.body['produtoItem[]'] || [])
+      const quantidades = typeof req.body['quantidadeItem[]'] === 'string'
+        ? [req.body['quantidadeItem[]']]
+        : (req.body['quantidadeItem[]'] || [])
+      const precos = typeof req.body['precoItem[]'] === 'string'
+        ? [req.body['precoItem[]']]
+        : (req.body['precoItem[]'] || [])
+
+      const itens = nomesProdutos
+        .map((nomeItem, i) => {
+          if (!nomeItem) return null
+          return {
+            produto: nomeItem,
+            quantidade: Number(quantidades[i]) || 1,
+            preco: Number(precos[i]) || 0
+          }
+        })
+        .filter(Boolean)
+
+      const total = itens.reduce((soma, item) => soma + (item.preco * item.quantidade), 0)
+
       await Contato.create({
         nome,
         email,
         telefone,
-        produto,
-        quantidade: quantidade || undefined,
+        produto: produto || (itens[0] ? itens[0].produto : undefined),
+        quantidade: quantidade || (itens[0] ? itens[0].quantidade : undefined),
+        itens: itens.length > 0 ? itens : undefined,
+        total: total > 0 ? total : undefined,
         mensagem
       })
       res.status(200).json({ ok: true })

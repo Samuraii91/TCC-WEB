@@ -90,7 +90,7 @@
 
             <div class="grid-servicos" id="listaCategorias">
                 <% categorias.forEach(cat=> { %>
-                    <div class="card-servico">
+                    <div class="card-servico" role="button" tabindex="0" data-cat="<%= normalizarNome(cat.nome) %>" aria-label="Ver produtos da categoria <%= cat.nome %>">
                         <div class="img-wrapper">
                             <img src="<% if (cat.imagemBase64) { %>
                                     data:<%= cat.mimetype %>;base64,<%= cat.imagemBase64 %>
@@ -101,6 +101,7 @@
                         <div class="card-content">
                             <h3><%= cat.nome %></h3>
                             <p><%= cat.descricao %></p>
+                            <span class="categoria-vermais">Ver produtos desta categoria →</span>
                         </div>
                     </div>
                     <% }) %>
@@ -270,20 +271,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="produto">Produto de Interesse *</label>
-                        <select id="produto" name="produto" required>
-                            <option value="">Selecione um produto</option>
-                            <% produtos.forEach(prod=> { %>
-                                <option value="<%= prod.nome %>">
-                                    <%= prod.nome %> - R$ <%= prod.preco %>
-                                </option>
-                                <% }) %>
-                        </select>
+                        <label>Produtos de Interesse *</label>
+                        <div id="itensOrcamento"></div>
+                        <button type="button" id="btnAdicionarItem" class="btn btn-contorno btn-adicionar-item">+ Adicionar produto</button>
+                        <p class="erro-orcamento" id="erroOrcamento" style="display:none"></p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="quantidade">Quantidade Desejada *</label>
-                        <input type="number" id="quantidade" name="quantidade" min="1" required>
+                    <div class="form-group form-total">
+                        <label>Total estimado</label>
+                        <p class="total-orcamento" id="totalOrcamento">R$ 0,00</p>
+                        <input type="hidden" name="total" id="inputTotal">
                     </div>
 
                     <div class="form-group">
@@ -699,8 +696,10 @@
             const nenhumResultado = document.getElementById("nenhumResultado");
             const buscaSugestao = document.getElementById("buscaSugestao");
 
-            if (termo !== "" && visiveis === 0) {
-                document.getElementById("termoNaoEncontrado").textContent = inputPesquisa.value.trim();
+            if (visiveis === 0 && (termo !== "" || categoriaAtiva !== "todos")) {
+                document.getElementById("termoNaoEncontrado").textContent =
+                    termo !== "" ? inputPesquisa.value.trim()
+                        : "a categoria selecionada não possui produtos disponíveis no momento";
                 nenhumResultado.style.display = "block";
 
                 const sugestao = melhorSugestao(termo);
@@ -750,6 +749,25 @@
             });
         });
 
+        // ----- Clique no card de categoria filtra os produtos dela -----
+        document.querySelectorAll(".card-servico").forEach(card => {
+            const filtrarPorCategoria = () => {
+                const cat = card.dataset.cat;
+                categoriaAtiva = cat;
+                pillsCategoria.forEach(p => p.classList.toggle("ativo", p.dataset.cat === cat));
+                produtosVisiveis = 4;
+                aplicarFiltro();
+                secaoProdutos.scrollIntoView({ behavior: "smooth", block: "start" });
+            };
+            card.addEventListener("click", filtrarPorCategoria);
+            card.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    filtrarPorCategoria();
+                }
+            });
+        });
+
         aplicarFiltro();
 
         // ----- Pesquisa pela sugestão ("Você quis dizer?") -----
@@ -766,16 +784,169 @@
             });
         }
 
+        // ----- Orçamento com múltiplos produtos -----
+        const PRODUTOS_DADOS = JSON.parse('<%- JSON.stringify(produtos.map(p => ({ nome: p.nome, preco: p.preco, quantidade: p.quantidade }))).replace(/</g, "\\u003c") %>');
+        const dadosProdutos = {};
+        PRODUTOS_DADOS.forEach(p => {
+            dadosProdutos[p.nome] = { preco: p.preco, quantidade: p.quantidade };
+        });
+
+        const itensOrcamento = document.getElementById("itensOrcamento");
+        const btnAdicionarItem = document.getElementById("btnAdicionarItem");
+        const erroOrcamento = document.getElementById("erroOrcamento");
+        const totalOrcamento = document.getElementById("totalOrcamento");
+
+        function formatarMoeda(valor) {
+            return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
+
+        function calcularTotal() {
+            const linhas = itensOrcamento.querySelectorAll(".item-orcamento");
+            let total = 0;
+            linhas.forEach(linha => {
+                const nome = linha.querySelector(".select-item-orcamento").value;
+                const qtd = parseInt(linha.querySelector(".qtd-item-orcamento").value, 10) || 0;
+                const dados = dadosProdutos[nome];
+                if (dados) total += dados.preco * qtd;
+            });
+            totalOrcamento.textContent = formatarMoeda(total);
+            const inputTotal = document.getElementById("inputTotal");
+            if (inputTotal) inputTotal.value = total.toFixed(2);
+        }
+
+        function atualizarSubtotal(linha) {
+            const select = linha.querySelector(".select-item-orcamento");
+            const qtdInput = linha.querySelector(".qtd-item-orcamento");
+            const precoHidden = linha.querySelector(".preco-item-orcamento");
+            const subtotalEl = linha.querySelector(".subtotal-item-orcamento");
+            const estoqueEl = linha.querySelector(".estoque-item-orcamento");
+            const nome = select.value;
+            const dados = dadosProdutos[nome];
+
+            if (!dados) {
+                precoHidden.value = "";
+                qtdInput.max = "1";
+                qtdInput.value = "1";
+                subtotalEl.textContent = formatarMoeda(0);
+                estoqueEl.textContent = "";
+                atualizarOpcoesDisponiveis();
+                calcularTotal();
+                return;
+            }
+
+            precoHidden.value = dados.preco;
+            qtdInput.max = dados.quantidade;
+            let qtd = parseInt(qtdInput.value, 10);
+            if (!qtd || qtd < 1) qtd = 1;
+            if (qtd > dados.quantidade) qtd = dados.quantidade;
+            qtdInput.value = qtd;
+
+            subtotalEl.textContent = formatarMoeda(dados.preco * qtd);
+            estoqueEl.textContent = "Estoque: " + dados.quantidade;
+            atualizarOpcoesDisponiveis();
+            calcularTotal();
+        }
+
+        function atualizarOpcoesDisponiveis() {
+            const linhas = Array.from(itensOrcamento.querySelectorAll(".item-orcamento"));
+            const selecionados = linhas.map(l => l.querySelector(".select-item-orcamento").value).filter(Boolean);
+            linhas.forEach(linha => {
+                const select = linha.querySelector(".select-item-orcamento");
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    opt.disabled = selecionados.includes(opt.value) && opt.value !== select.value;
+                });
+            });
+        }
+
+        function criarLinhaOrcamento(nomeSelecionado) {
+            const linha = document.createElement("div");
+            linha.className = "item-orcamento";
+
+            const select = document.createElement("select");
+            select.className = "select-item-orcamento";
+            select.name = "produtoItem[]";
+            const optVazio = document.createElement("option");
+            optVazio.value = "";
+            optVazio.textContent = "Selecione um produto";
+            select.appendChild(optVazio);
+            Object.keys(dadosProdutos).forEach(nome => {
+                const opt = document.createElement("option");
+                opt.value = nome;
+                opt.textContent = nome + " - " + formatarMoeda(dadosProdutos[nome].preco);
+                select.appendChild(opt);
+            });
+            if (nomeSelecionado && dadosProdutos[nomeSelecionado]) select.value = nomeSelecionado;
+
+            const qtdInput = document.createElement("input");
+            qtdInput.type = "number";
+            qtdInput.className = "qtd-item-orcamento";
+            qtdInput.name = "quantidadeItem[]";
+            qtdInput.min = "1";
+            qtdInput.value = "1";
+
+            const precoHidden = document.createElement("input");
+            precoHidden.type = "hidden";
+            precoHidden.className = "preco-item-orcamento";
+            precoHidden.name = "precoItem[]";
+
+            const subtotalEl = document.createElement("span");
+            subtotalEl.className = "subtotal-item-orcamento";
+            subtotalEl.textContent = formatarMoeda(0);
+
+            const estoqueEl = document.createElement("span");
+            estoqueEl.className = "estoque-item-orcamento";
+
+            const btnRemover = document.createElement("button");
+            btnRemover.type = "button";
+            btnRemover.className = "btn-remover-item";
+            btnRemover.title = "Remover produto";
+            btnRemover.textContent = "×";
+            btnRemover.addEventListener("click", () => {
+                linha.remove();
+                calcularTotal();
+                atualizarOpcoesDisponiveis();
+                if (itensOrcamento.querySelectorAll(".item-orcamento").length === 0) criarLinhaOrcamento();
+            });
+
+            linha.appendChild(select);
+            linha.appendChild(qtdInput);
+            linha.appendChild(precoHidden);
+            linha.appendChild(subtotalEl);
+            linha.appendChild(estoqueEl);
+            linha.appendChild(btnRemover);
+
+            select.addEventListener("change", () => atualizarSubtotal(linha));
+            qtdInput.addEventListener("input", () => atualizarSubtotal(linha));
+
+            itensOrcamento.appendChild(linha);
+            atualizarSubtotal(linha);
+            return linha;
+        }
+
+        if (btnAdicionarItem) btnAdicionarItem.addEventListener("click", () => criarLinhaOrcamento());
+
         // ----- Pré-seleciona o produto clicado no formulário de orçamento -----
         document.querySelectorAll(".btn-orcamento").forEach(btn => {
             btn.addEventListener("click", function () {
                 const nome = this.dataset.produto;
-                const selectProduto = document.getElementById("produto");
-                const qtd = document.getElementById("quantidade");
-                if (selectProduto && nome) selectProduto.value = nome;
-                if (qtd) qtd.value = "1";
+                if (!nome || !dadosProdutos[nome]) return;
+                let linhaVazia = null;
+                itensOrcamento.querySelectorAll(".item-orcamento").forEach(linha => {
+                    if (!linhaVazia && linha.querySelector(".select-item-orcamento").value === "") linhaVazia = linha;
+                });
+                if (linhaVazia) {
+                    linhaVazia.querySelector(".select-item-orcamento").value = nome;
+                    atualizarSubtotal(linhaVazia);
+                } else {
+                    criarLinhaOrcamento(nome);
+                }
             });
         });
+
+        if (itensOrcamento && itensOrcamento.querySelectorAll(".item-orcamento").length === 0) {
+            criarLinhaOrcamento();
+        }
 
         // ----- Modal de detalhes do produto -----
         const modalProduto = document.getElementById("modalProduto");
@@ -975,6 +1146,30 @@
         if (formContato) {
             formContato.addEventListener("submit", async function (e) {
                 e.preventDefault();
+
+                const linhas = itensOrcamento.querySelectorAll(".item-orcamento");
+                let algumProduto = false;
+                linhas.forEach(linha => {
+                    const select = linha.querySelector(".select-item-orcamento");
+                    const qtdInput = linha.querySelector(".qtd-item-orcamento");
+                    if (select.value !== "") {
+                        algumProduto = true;
+                        const dados = dadosProdutos[select.value];
+                        let qtd = parseInt(qtdInput.value, 10) || 1;
+                        if (dados && qtd > dados.quantidade) qtd = dados.quantidade;
+                        qtdInput.value = qtd;
+                    }
+                });
+
+                if (!algumProduto) {
+                    erroOrcamento.textContent = "Selecione ao menos um produto para solicitar o orçamento.";
+                    erroOrcamento.style.display = "block";
+                    const primeira = itensOrcamento.querySelector(".item-orcamento");
+                    if (primeira) primeira.querySelector(".select-item-orcamento").focus();
+                    return;
+                }
+                erroOrcamento.style.display = "none";
+
                 try {
                     await fetch("/site/contato", {
                         method: "POST",

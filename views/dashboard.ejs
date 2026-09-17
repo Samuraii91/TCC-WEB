@@ -154,19 +154,30 @@
             <thead>
               <tr>
                 <th>Cliente</th>
-                <th>Produto</th>
+                <th>Produtos</th>
+                <th>Total</th>
                 <th>Status</th>
                 <th>Data</th>
               </tr>
             </thead>
             <tbody>
               <% ultimosContatos.forEach(contato=> { %>
+                <% const itensDash = contato.itens && contato.itens.length
+                    ? contato.itens
+                    : (contato.produto ? [{ produto: contato.produto, quantidade: contato.quantidade }] : []) %>
                 <tr>
                   <td>
                     <%= contato.nome %>
                   </td>
                   <td>
-                    <%= contato.produto || '-' %>
+                    <% if (itensDash.length === 0) { %>
+                      -
+                      <% } else { itensDash.forEach(item => { %>
+                        <%= item.produto %> x <%= item.quantidade %><br>
+                        <% }) } %>
+                  </td>
+                  <td>
+                    <%= contato.total ? 'R$ ' + Number(contato.total).toFixed(2) : '-' %>
                   </td>
                   <td>
                     <% if (contato.status==='Aguardando' ) { %>

@@ -26,8 +26,9 @@
         <tr>
           <th>Cliente</th>
           <th>Contato</th>
-          <th>Produto</th>
+          <th>Produtos</th>
           <th>Qtd</th>
+          <th>Total</th>
           <th>Status</th>
           <th>Data</th>
           <th>Ações</th>
@@ -35,14 +36,25 @@
       </thead>
       <tbody>
         <% contatos.forEach(contato => { %>
+          <% const itens = contato.itens && contato.itens.length
+              ? contato.itens
+              : (contato.produto ? [{ produto: contato.produto, quantidade: contato.quantidade }] : [])
+              const qtdTotal = itens.reduce((s, i) => s + (Number(i.quantidade) || 0), 0); %>
           <tr>
             <td><%= contato.nome %></td>
             <td>
               <%= contato.email %><br>
               <small><%= contato.telefone %></small>
             </td>
-            <td><%= contato.produto || '-' %></td>
-            <td><%= contato.quantidade || '-' %></td>
+            <td>
+              <% if (itens.length === 0) { %>
+                -
+                <% } else { itens.forEach(item => { %>
+                  <%= item.produto %><br>
+                  <% }) } %>
+            </td>
+            <td><%= qtdTotal || '-' %></td>
+            <td><%= contato.total ? 'R$ ' + Number(contato.total).toFixed(2) : '-' %></td>
             <td>
               <% if (contato.status === 'Aguardando') { %>
                 <span class="badge badge-aguardando">Aguardando</span>

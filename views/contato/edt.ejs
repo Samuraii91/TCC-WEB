@@ -15,8 +15,29 @@
       <div class="detalhe-item"><span class="detalhe-label">Nome:</span> <%= contato.nome %></div>
       <div class="detalhe-item"><span class="detalhe-label">E-mail:</span> <%= contato.email %></div>
       <div class="detalhe-item"><span class="detalhe-label">Telefone:</span> <%= contato.telefone %></div>
-      <div class="detalhe-item"><span class="detalhe-label">Produto:</span> <%= contato.produto || '-' %></div>
-      <div class="detalhe-item"><span class="detalhe-label">Quantidade:</span> <%= contato.quantidade || '-' %></div>
+      <div class="detalhe-item"><span class="detalhe-label">Produtos:</span>
+        <% const itens = contato.itens && contato.itens.length
+            ? contato.itens
+            : (contato.produto ? [{ produto: contato.produto, quantidade: contato.quantidade }] : []) %>
+        <% if (itens.length === 0) { %>
+          -
+          <% } else { %>
+            <ul class="lista-itens-orcamento">
+              <% itens.forEach(item => { %>
+                <li>
+                  <%= item.produto %> &mdash; <%= item.quantidade %>x
+                  <% if (item.preco) { %>
+                    (R$ <%= Number(item.preco).toFixed(2) %> cada)
+                  <% } %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+      </div>
+      <% if (contato.total) { %>
+        <div class="detalhe-item"><span class="detalhe-label">Total estimado:</span>
+          R$ <%= Number(contato.total).toFixed(2) %></div>
+      <% } %>
       <div class="detalhe-item"><span class="detalhe-label">Recebido em:</span> <%= contato.createdAt ? new Date(contato.createdAt).toLocaleDateString('pt-BR') : '-' %></div>
       <div class="detalhe-item detalhe-mensagem">
         <span class="detalhe-label">Mensagem:</span>
