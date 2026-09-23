@@ -281,7 +281,10 @@
 
                     <div class="form-group form-total">
                         <label>Total estimado</label>
-                        <p class="total-orcamento" id="totalOrcamento">R$ 0,00</p>
+                        <div class="total-box">
+                            <p class="total-orcamento" id="totalOrcamento">R$ 0,00</p>
+                            <span class="obs-frete">*valor pode variar por consequência do frete</span>
+                        </div>
                         <input type="hidden" name="total" id="inputTotal">
                     </div>
 
@@ -389,6 +392,49 @@
                 d="M16 2C8.3 2 2 8.3 2 16c0 2.7 0.8 5.2 2.1 7.4L2 30l6.8-2.1C11 29.5 13.4 30 16 30c7.7 0 14-6.3 14-14S23.7 2 16 2zm0 25.5c-2.4 0-4.6-0.7-6.5-1.8l-0.5-0.3-4 1.2 1.2-3.9-0.3-0.5C4.3 20 3.5 18 3.5 16 3.5 9.1 9.1 3.5 16 3.5S28.5 9.1 28.5 16 22.9 27.5 16 27.5zm7.1-9.7c-0.4-0.2-2.3-1.1-2.6-1.2-0.3-0.2-0.6-0.2-0.8 0.2-0.2 0.3-0.9 1.2-1.1 1.4-0.2 0.2-0.4 0.2-0.8 0.1-0.4-0.2-1.6-0.6-3.1-1.9-1.1-1-1.9-2.2-2.1-2.6-0.2-0.4 0-0.6 0.2-0.8 0.2-0.2 0.4-0.4 0.6-0.7 0.2-0.2 0.3-0.4 0.4-0.7 0.1-0.3 0.1-0.5 0-0.7-0.1-0.2-0.8-2-1.1-2.7-0.3-0.7-0.6-0.6-0.8-0.6h-0.7c-0.2 0-0.6 0.1-0.9 0.4-0.3 0.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.4c0.2 0.2 2.4 3.6 5.8 5.1 0.8 0.3 1.4 0.5 1.9 0.7 0.8 0.2 1.5 0.2 2.1 0.1 0.6-0.1 2-0.8 2.3-1.6 0.3-0.8 0.3-1.5 0.2-1.7-0.1-0.2-0.3-0.3-0.7-0.4z" />
         </svg>
     </a>
+
+    <button id="btnAcessibilidade" class="acessibilidade-float" type="button" aria-label="Abrir opções de acessibilidade"
+        aria-expanded="false" aria-controls="acessibilidadePainel">
+        ♿
+    </button>
+
+    <div class="acessibilidade-painel" id="acessibilidadePainel" aria-hidden="true">
+        <button type="button" class="acessibilidade-fechar" id="acessibilidadeFechar" aria-label="Fechar painel de acessibilidade">&times;</button>
+        <h3 class="acessibilidade-titulo">Acessibilidade</h3>
+
+        <div class="acess-opcao">
+            <button type="button" id="btnLibras" class="btn-acessibilidade">
+                <span class="acess-icone">🤟</span> Libras
+            </button>
+        </div>
+
+        <div class="acess-opcao">
+            <button type="button" id="btnOuvir" class="btn-acessibilidade">
+                <span class="acess-icone">🔊</span> Ouvir página
+            </button>
+            <button type="button" id="btnPararLeitura" class="btn-acessibilidade" style="display:none">
+                <span class="acess-icone">⏹</span> Parar leitura
+            </button>
+        </div>
+
+        <div class="acess-opcao acess-fonte">
+            <span class="acess-rotulo">Tamanho da fonte</span>
+            <div class="acess-fonte-botoes">
+                <button type="button" class="btn-acess-fonte" id="btnFonteMenos" aria-label="Diminuir o tamanho da fonte">A-</button>
+                <button type="button" class="btn-acess-fonte" id="btnFonteReset" aria-label="Tamanho padrão da fonte">A</button>
+                <button type="button" class="btn-acess-fonte" id="btnFonteMais" aria-label="Aumentar o tamanho da fonte">A+</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vlibras-wrap">
+        <div vw class="enabled">
+            <div vw-access-button class="active"></div>
+            <div vw-plugin-wrapper>
+                <div class="vw-plugin-top-wrapper"></div>
+            </div>
+        </div>
+    </div>
 
     <button id="voltar-topo" class="voltar-topo" type="button" aria-label="Voltar ao topo">&uarr;</button>
 
@@ -1235,6 +1281,137 @@
                 if (menuToggle && menuToggle.checked) menuToggle.checked = false;
             });
         });
+    </script>
+
+    <!-- VLibras (tradutor para Libras) -->
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        window.addEventListener('load', function () {
+            try {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+            } catch (err) {
+                console.warn('VLibras indisponível:', err);
+            }
+        });
+
+        // ----- Painel de acessibilidade -----
+        (function () {
+            const btnAcess = document.getElementById("btnAcessibilidade");
+            const painel = document.getElementById("acessibilidadePainel");
+            const btnFechar = document.getElementById("acessibilidadeFechar");
+            const btnLibras = document.getElementById("btnLibras");
+            const vlibrasWrap = document.getElementById("vlibras-wrap");
+
+            function alternarPainel(forcar) {
+                const aberto = forcar !== undefined ? forcar : !painel.classList.contains("aberto");
+                painel.classList.toggle("aberto", aberto);
+                painel.setAttribute("aria-hidden", String(!aberto));
+                btnAcess.setAttribute("aria-expanded", String(aberto));
+            }
+
+            btnAcess.addEventListener("click", function () {
+                const viraAberto = !painel.classList.contains("aberto");
+                alternarPainel(viraAberto);
+                if (viraAberto) btnAcess.blur();
+            });
+            if (btnFechar) btnFechar.addEventListener("click", () => alternarPainel(false));
+            document.addEventListener("click", function (e) {
+                if (painel.classList.contains("aberto") &&
+                    !painel.contains(e.target) && e.target !== btnAcess) {
+                    alternarPainel(false);
+                }
+            });
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") {
+                    alternarPainel(false);
+                    window.speechSynthesis && window.speechSynthesis.cancel();
+                }
+            });
+
+            // ----- Libras (mostra/oculta o widget do VLibras) -----
+            function statusLibras() {
+                return vlibrasWrap && vlibrasWrap.classList.contains("aberto");
+            }
+
+            if (btnLibras) {
+                btnLibras.addEventListener("click", function () {
+                    if (!vlibrasWrap) return;
+                    const abrir = !statusLibras();
+                    vlibrasWrap.classList.toggle("aberto", abrir);
+                    btnLibras.innerHTML = abrir
+                        ? '<span class="acess-icone">🤟</span> Ocultar Libras'
+                        : '<span class="acess-icone">🤟</span> Libras';
+                    if (abrir && vlibrasWrap.querySelector('iframe')) {
+                        vlibrasWrap.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                });
+            }
+
+            // ----- Leitura por áudio (voz do navegador) -----
+            const btnOuvir = document.getElementById("btnOuvir");
+            const btnParar = document.getElementById("btnPararLeitura");
+
+            function textoParaLeitura() {
+                const clone = document.body.cloneNode(true);
+                clone.querySelectorAll(".acessibilidade-painel, .acessibilidade-float, #vlibras-wrap, .whatsapp-float, .voltar-topo, .menu-mobile, #menu-toggle").forEach(el => el.remove());
+                return clone.innerText.replace(/\s+/g, " ").trim();
+            }
+
+            function pararLeitura() {
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                if (btnOuvir) btnOuvir.style.display = "";
+                if (btnParar) btnParar.style.display = "none";
+            }
+
+            if (btnOuvir) {
+                btnOuvir.addEventListener("click", function () {
+                    if (!("speechSynthesis" in window)) {
+                        alert("Seu navegador não suporta leitura por voz.");
+                        return;
+                    }
+                    window.speechSynthesis.cancel();
+                    const texto = textoParaLeitura();
+                    if (!texto) return;
+                    const utterance = new SpeechSynthesisUtterance(texto);
+                    utterance.lang = "pt-BR";
+                    utterance.rate = 1;
+                    const vozes = window.speechSynthesis.getVoices();
+                    const vozPt = vozes.find(v => v.lang && v.lang.toLowerCase().startsWith("pt"));
+                    if (vozPt) utterance.voice = vozPt;
+                    window.speechSynthesis.speak(utterance);
+                    btnOuvir.style.display = "none";
+                    btnParar.style.display = "";
+                });
+            }
+            if (btnParar) btnParar.addEventListener("click", pararLeitura);
+
+            // ----- Tamanho da fonte -----
+            const FONTE_MIN = -2;
+            const FONTE_MAX = 4;
+            const PASSO = 6.25; // % de cada nível (+ A- e A+ mantêm tamanhos regulares)
+            const btnFonteMenos = document.getElementById("btnFonteMenos");
+            const btnFonteMais = document.getElementById("btnFonteMais");
+            const btnFonteReset = document.getElementById("btnFonteReset");
+
+            function aplicarFonte(nivel) {
+                nivel = Math.max(FONTE_MIN, Math.min(FONTE_MAX, nivel));
+                document.documentElement.style.fontSize = (100 + nivel * PASSO) + "%";
+                localStorage.setItem("acess-fonte", String(nivel));
+                if (btnFonteMenos) btnFonteMenos.disabled = nivel <= FONTE_MIN;
+                if (btnFonteMais) btnFonteMais.disabled = nivel >= FONTE_MAX;
+            }
+
+            if (btnFonteMenos) btnFonteMenos.addEventListener("click", function () {
+                aplicarFonte((parseFloat(localStorage.getItem("acess-fonte")) || 0) - 1);
+            });
+            if (btnFonteMais) btnFonteMais.addEventListener("click", function () {
+                aplicarFonte((parseFloat(localStorage.getItem("acess-fonte")) || 0) + 1);
+            });
+            if (btnFonteReset) btnFonteReset.addEventListener("click", () => aplicarFonte(0));
+
+            const fonteSalva = parseFloat(localStorage.getItem("acess-fonte"));
+            aplicarFonte(isFinite(fonteSalva) ? fonteSalva : 0);
+        })();
     </script>
 
 </body>

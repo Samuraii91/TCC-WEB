@@ -13,14 +13,9 @@
 
     <form action="/entrega/edt/<%= entrega._id %>" method="POST" class="form-padrao">
       <div class="form-group">
-        <label for="produto">Produto:</label>
-        <select id="produto" name="produto" required>
-          <% produtos.forEach(produto => { %>
-            <option value="<%= produto._id %>" <%= entrega.produto.equals(produto._id) ? "selected" : "" %>>
-              <%= produto.nome %>
-            </option>
-          <% }) %>
-        </select>
+        <label>Produtos *</label>
+        <div id="itensEntrega"></div>
+        <button type="button" id="btnAdicionarItem" class="btn-salvar btn-adicionar-entrega">+ Adicionar produto</button>
       </div>
 
       <div class="form-group">
@@ -58,5 +53,84 @@
   </div>
 
   <%- include('../rodape.ejs') %>
+
+  <script>
+    const PRODUTOS_ENTREGA = <%- JSON.stringify(produtos.map(p => ({ id: p._id.toString(), nome: p.nome }))) %>;
+    const ITENS_INICIAIS = <%- JSON.stringify(
+      (entrega.itens && entrega.itens.length
+        ? entrega.itens.map(i => ({ id: i.produto ? i.produto.toString() : '', quantidade: i.quantidade }))
+        : (entrega.produto ? [{ id: entrega.produto.toString(), quantidade: 1 }] : []))
+    ) %>;
+
+    const itensEntrega = document.getElementById("itensEntrega");
+    const btnAdicionarItem = document.getElementById("btnAdicionarItem");
+
+    function atualizarOpcoesDisponiveis() {
+      const linhas = Array.from(itensEntrega.querySelectorAll(".item-entrega"));
+      const selecionados = linhas.map(l => l.querySelector("select[name='produto[]']").value).filter(Boolean);
+      linhas.forEach(linha => {
+        const select = linha.querySelector("select[name='produto[]']");
+        Array.from(select.options).forEach(opt => {
+          if (opt.value === "") return;
+          opt.disabled = selecionados.includes(opt.value) && opt.value !== select.value;
+        });
+      });
+    }
+
+    function criarLinhaEntrega(idSelecionado, quantidade) {
+      const linha = document.createElement("div");
+      linha.className = "item-entrega";
+
+      const select = document.createElement("select");
+      select.name = "produto[]";
+      const optVazio = document.createElement("option");
+      optVazio.value = "";
+      optVazio.textContent = "Selecione um produto";
+      select.appendChild(optVazio);
+      PRODUTOS_ENTREGA.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        select.appendChild(opt);
+      });
+      if (idSelecionado && PRODUTOS_ENTREGA.some(p => p.id === idSelecionado)) select.value = idSelecionado;
+
+      const qtdInput = document.createElement("input");
+      qtdInput.type = "number";
+      qtdInput.name = "quantidadeItem[]";
+      qtdInput.min = "1";
+      qtdInput.value = quantidade || "1";
+      qtdInput.title = "Quantidade";
+
+      const btnRemover = document.createElement("button");
+      btnRemover.type = "button";
+      btnRemover.className = "btn-remover-item";
+      btnRemover.title = "Remover produto";
+      btnRemover.textContent = "×";
+      btnRemover.addEventListener("click", () => {
+        linha.remove();
+        atualizarOpcoesDisponiveis();
+        if (itensEntrega.querySelectorAll(".item-entrega").length === 0) criarLinhaEntrega();
+      });
+
+      select.addEventListener("change", atualizarOpcoesDisponiveis);
+
+      linha.appendChild(select);
+      linha.appendChild(qtdInput);
+      linha.appendChild(btnRemover);
+
+      itensEntrega.appendChild(linha);
+      atualizarOpcoesDisponiveis();
+      return linha;
+    }
+
+    btnAdicionarItem.addEventListener("click", () => criarLinhaEntrega());
+
+    if (ITENS_INICIAIS.length > 0) {
+      ITENS_INICIAIS.forEach(item => criarLinhaEntrega(item.id, item.quantidade));
+    } else {
+      criarLinhaEntrega();
+    }
+  </script>
 </body>
 </html>

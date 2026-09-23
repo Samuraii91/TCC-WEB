@@ -1162,6 +1162,77 @@ a.del:hover {
 }
 
 /* ======================================================
+   ITENS DE ENTREGA (múltiplos produtos + quantidade)
+====================================================== */
+#itensEntrega {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.item-entrega {
+  display: grid;
+  grid-template-columns: 1fr 100px 36px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+  background: var(--fundo-suave);
+}
+
+.item-entrega select,
+.item-entrega input[type="number"] {
+  padding: 12px 14px;
+  font-size: 14.5px;
+  border-radius: var(--raio-sm);
+  border: 1px solid var(--borda);
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--fonte);
+  background: var(--fundo-suave);
+  color: var(--texto);
+}
+
+.item-entrega select:focus,
+.item-entrega input[type="number"]:focus {
+  outline: none;
+  border-color: var(--azul);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18);
+}
+
+.item-entrega select option {
+  background: var(--card);
+  color: var(--texto);
+}
+
+.btn-adicionar-entrega {
+  align-self: flex-start;
+}
+
+.item-entrega .btn-remover-item {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--raio-sm);
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-entrega .btn-remover-item:hover {
+  background: var(--vermelho);
+  color: #fff;
+}
+
+/* ======================================================
    RESPONSIVO
 ====================================================== */
 @media (max-width: 900px) {

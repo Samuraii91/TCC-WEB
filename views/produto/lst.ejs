@@ -88,6 +88,29 @@
   <%- include('../rodape.ejs') %>
 
   <script>
+    (function () {
+      const alertaEstoque = <%- JSON.stringify({
+        emFalta: produtos.filter(p => Number(p.quantidade) === 0).map(p => p.nome),
+        baixoEstoque: produtos
+          .filter(p => Number(p.quantidade) > 0 && Number(p.quantidade) <= 5)
+          .map(p => ({ nome: p.nome, quantidade: Number(p.quantidade) }))
+      }) %>;
+
+      let mensagem = "";
+      if (alertaEstoque.emFalta.length > 0) {
+        mensagem += "PRODUTOS EM FALTA:\n- " + alertaEstoque.emFalta.join("\n- ") + "\n\n";
+      }
+      if (alertaEstoque.baixoEstoque.length > 0) {
+        mensagem += "PRODUTOS COM ESTOQUE BAIXO:\n" +
+          alertaEstoque.baixoEstoque.map(p => "- " + p.nome + " (" + p.quantidade + ")").join("\n");
+      }
+      if (mensagem) {
+        alert("⚠️ ALERTA DE ESTOQUE\n\n" + mensagem);
+      }
+    })();
+  </script>
+
+  <script>
     function removerAcentos(texto) {
       return (texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }

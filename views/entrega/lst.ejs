@@ -35,8 +35,15 @@
       </thead>
       <tbody>
         <% entregas.forEach(entrega => { %>
+          <% const nomeItens = (entrega.itens && entrega.itens.length)
+            ? entrega.itens.map(i => {
+                const nome = i.produto ? i.produto.nome : '';
+                const qtd = i.quantidade || 1;
+                return qtd > 1 ? nome + ' (' + qtd + 'x)' : nome;
+              }).filter(Boolean).join(', ')
+            : (entrega.produto ? entrega.produto.nome : ''); %>
           <tr>
-            <td><%= entrega.produto ? entrega.produto.nome : '' %></td>
+            <td><%= nomeItens %></td>
             <td><%= entrega.cliente %></td>
             <td><%= entrega.endereco %></td>
             <td>
