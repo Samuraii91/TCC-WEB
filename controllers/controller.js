@@ -133,7 +133,7 @@ export default class Controller {
         Entrega.countDocuments(),
         Entrega.countDocuments({ status: 'Pendente' }),
         Produto.countDocuments({ quantidade: { $lte: 5 } }),
-        Entrega.find().populate('produto').sort({ data: -1 }).limit(5),
+        Entrega.find().populate('itens.produto').sort({ data: -1 }).limit(5),
         Produto.find().populate('categoria'),
         Entrega.find(),
         Contato.countDocuments(),
