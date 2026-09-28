@@ -403,35 +403,25 @@
         <h3 class="acessibilidade-titulo">Acessibilidade</h3>
 
         <div class="acess-opcao">
-            <button type="button" id="btnLibras" class="btn-acessibilidade">
-                <span class="acess-icone">🤟</span> Libras
-            </button>
-        </div>
-
-        <div class="acess-opcao">
             <button type="button" id="btnOuvir" class="btn-acessibilidade">
                 <span class="acess-icone">🔊</span> Ouvir página
+            </button>
+            <button type="button" id="btnOuvirSelecao" class="btn-acessibilidade">
+                <span class="acess-icone">✂️</span> Ouvir seleção
             </button>
             <button type="button" id="btnPararLeitura" class="btn-acessibilidade" style="display:none">
                 <span class="acess-icone">⏹</span> Parar leitura
             </button>
+            <span class="acess-dica" id="acessDicaSelecao">Dica: selecione com o mouse um trecho da
+                página para ouvir só ele.</span>
         </div>
 
         <div class="acess-opcao acess-fonte">
-            <span class="acess-rotulo">Tamanho da fonte</span>
+            <span class="acess-rotulo">Tamanho da fonte <b id="acessNivelFonte">100%</b></span>
             <div class="acess-fonte-botoes">
                 <button type="button" class="btn-acess-fonte" id="btnFonteMenos" aria-label="Diminuir o tamanho da fonte">A-</button>
                 <button type="button" class="btn-acess-fonte" id="btnFonteReset" aria-label="Tamanho padrão da fonte">A</button>
                 <button type="button" class="btn-acess-fonte" id="btnFonteMais" aria-label="Aumentar o tamanho da fonte">A+</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="vlibras-wrap">
-        <div vw class="enabled">
-            <div vw-access-button class="active"></div>
-            <div vw-plugin-wrapper>
-                <div class="vw-plugin-top-wrapper"></div>
             </div>
         </div>
     </div>
@@ -1299,8 +1289,6 @@
             const btnAcess = document.getElementById("btnAcessibilidade");
             const painel = document.getElementById("acessibilidadePainel");
             const btnFechar = document.getElementById("acessibilidadeFechar");
-            const btnLibras = document.getElementById("btnLibras");
-            const vlibrasWrap = document.getElementById("vlibras-wrap");
 
             function alternarPainel(forcar) {
                 const aberto = forcar !== undefined ? forcar : !painel.classList.contains("aberto");
@@ -1324,93 +1312,195 @@
             document.addEventListener("keydown", function (e) {
                 if (e.key === "Escape") {
                     alternarPainel(false);
-                    window.speechSynthesis && window.speechSynthesis.cancel();
+                    pararLeitura();
                 }
             });
 
-            // ----- Libras (mostra/oculta o widget do VLibras) -----
-            function statusLibras() {
-                return vlibrasWrap && vlibrasWrap.classList.contains("aberto");
-            }
-
-            if (btnLibras) {
-                btnLibras.addEventListener("click", function () {
-                    if (!vlibrasWrap) return;
-                    const abrir = !statusLibras();
-                    vlibrasWrap.classList.toggle("aberto", abrir);
-                    btnLibras.innerHTML = abrir
-                        ? '<span class="acess-icone">🤟</span> Ocultar Libras'
-                        : '<span class="acess-icone">🤟</span> Libras';
-                    if (abrir && vlibrasWrap.querySelector('iframe')) {
-                        vlibrasWrap.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                });
-            }
-
             // ----- Leitura por áudio (voz do navegador) -----
             const btnOuvir = document.getElementById("btnOuvir");
+            const btnOuvirSelecao = document.getElementById("btnOuvirSelecao");
             const btnParar = document.getElementById("btnPararLeitura");
+            const dicaSelecao = document.getElementById("acessDicaSelecao");
+            const temVoz = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+            const LIMITE_FRAGMENTO = 220; // acima disso o navegador corta a fala no meio
+            let geracao = 0;
+            let falando = false;
+            let ultimaSelecao = "";
 
-            function textoParaLeitura() {
+            // A última seleção é guardada porque clicar no painel derruba a seleção atual
+            function textoSelecionado() {
+                const sel = window.getSelection && window.getSelection();
+                const texto = sel && !sel.isCollapsed ? sel.toString() : "";
+                return texto.replace(/\s+/g, " ").trim();
+            }
+
+            function atualizarBotaoSelecao() {
+                const texto = textoSelecionado();
+                if (texto) ultimaSelecao = texto;
+                const temTexto = !!(texto || ultimaSelecao);
+                if (btnOuvirSelecao) btnOuvirSelecao.disabled = !temTexto;
+                if (dicaSelecao) {
+                    dicaSelecao.textContent = temTexto
+                        ? "Trecho selecionado: " + (texto || ultimaSelecao).slice(0, 60) +
+                          ((texto || ultimaSelecao).length > 60 ? "..." : "")
+                        : "Dica: selecione com o mouse um trecho da página para ouvir só ele.";
+                }
+            }
+            document.addEventListener("selectionchange", atualizarBotaoSelecao);
+            if (btnOuvirSelecao) {
+                // não deixa o clique no botão limpar a seleção
+                btnOuvirSelecao.addEventListener("mousedown", (e) => e.preventDefault());
+            }
+
+            function textoDaPagina() {
                 const clone = document.body.cloneNode(true);
-                clone.querySelectorAll(".acessibilidade-painel, .acessibilidade-float, #vlibras-wrap, .whatsapp-float, .voltar-topo, .menu-mobile, #menu-toggle").forEach(el => el.remove());
+                clone.querySelectorAll(".acessibilidade-painel, .acessibilidade-float, " +
+                    "#vlibras-access-wrapper, .whatsapp-float, .voltar-topo, .menu-mobile, " +
+                    "#menu-toggle, script, style, noscript").forEach(el => el.remove());
                 return clone.innerText.replace(/\s+/g, " ").trim();
             }
 
+            // Corta o texto em frases curtas, senão o Chrome só fala os primeiros segundos
+            function dividirEmFragmentos(texto) {
+                const frases = texto.match(/[^.!?…]+[.!?…]*\s*/g) || [texto];
+                const fragmentos = [];
+                let atual = "";
+                frases.forEach(frase => {
+                    if (frase.length > LIMITE_FRAGMENTO) {
+                        if (atual.trim()) { fragmentos.push(atual.trim()); atual = ""; }
+                        let resto = frase;
+                        while (resto.length > LIMITE_FRAGMENTO) {
+                            let corte = resto.lastIndexOf(" ", LIMITE_FRAGMENTO);
+                            if (corte <= 0) corte = LIMITE_FRAGMENTO;
+                            fragmentos.push(resto.slice(0, corte).trim());
+                            resto = resto.slice(corte);
+                        }
+                        atual = resto;
+                        return;
+                    }
+                    if ((atual + frase).length > LIMITE_FRAGMENTO && atual.trim()) {
+                        fragmentos.push(atual.trim());
+                        atual = "";
+                    }
+                    atual += frase;
+                });
+                if (atual.trim()) fragmentos.push(atual.trim());
+                return fragmentos.filter(f => f);
+            }
+
+            function vozPortugues() {
+                const vozes = window.speechSynthesis.getVoices() || [];
+                return vozes.find(v => /^pt[-_]BR/i.test(v.lang || "")) ||
+                    vozes.find(v => /^pt/i.test(v.lang || "")) || null;
+            }
+
+            function atualizarBotoesLeitura() {
+                if (btnOuvir) btnOuvir.disabled = falando;
+                if (btnOuvirSelecao) btnOuvirSelecao.disabled = falando || !(textoSelecionado() || ultimaSelecao);
+                if (btnParar) btnParar.style.display = falando ? "" : "none";
+            }
+
+            function falar(texto) {
+                const fragmentos = dividirEmFragmentos(texto);
+                if (!fragmentos.length) return false;
+                const meuToken = ++geracao;
+                falando = true;
+                window.speechSynthesis.cancel();
+                let i = 0;
+                const encerrar = () => {
+                    falando = false;
+                    atualizarBotoesLeitura();
+                };
+                const proximo = () => {
+                    if (meuToken !== geracao) return;
+                    if (i >= fragmentos.length) { encerrar(); return; }
+                    try {
+                        const fala = new SpeechSynthesisUtterance(fragmentos[i++]);
+                        fala.lang = "pt-BR";
+                        fala.rate = 1;
+                        const voz = vozPortugues();
+                        if (voz) fala.voice = voz;
+                        fala.onend = proximo;
+                        fala.onerror = proximo;
+                        window.speechSynthesis.speak(fala);
+                    } catch (erro) {
+                        // nunca deixar o painel travado em "lendo" se algo falhar
+                        console.warn("Leitura por voz:", erro);
+                        encerrar();
+                    }
+                };
+                proximo();
+                atualizarBotoesLeitura();
+                return true;
+            }
+
             function pararLeitura() {
+                geracao++;
+                falando = false;
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
-                if (btnOuvir) btnOuvir.style.display = "";
-                if (btnParar) btnParar.style.display = "none";
+                atualizarBotoesLeitura();
             }
 
             if (btnOuvir) {
                 btnOuvir.addEventListener("click", function () {
-                    if (!("speechSynthesis" in window)) {
-                        alert("Seu navegador não suporta leitura por voz.");
-                        return;
-                    }
-                    window.speechSynthesis.cancel();
-                    const texto = textoParaLeitura();
+                    if (!temVoz) { alert("Seu navegador não suporta leitura por voz."); return; }
+                    const texto = textoDaPagina();
                     if (!texto) return;
-                    const utterance = new SpeechSynthesisUtterance(texto);
-                    utterance.lang = "pt-BR";
-                    utterance.rate = 1;
-                    const vozes = window.speechSynthesis.getVoices();
-                    const vozPt = vozes.find(v => v.lang && v.lang.toLowerCase().startsWith("pt"));
-                    if (vozPt) utterance.voice = vozPt;
-                    window.speechSynthesis.speak(utterance);
-                    btnOuvir.style.display = "none";
-                    btnParar.style.display = "";
+                    falar(texto);
+                });
+            }
+            if (btnOuvirSelecao) {
+                btnOuvirSelecao.addEventListener("click", function () {
+                    if (!temVoz) { alert("Seu navegador não suporta leitura por voz."); return; }
+                    const texto = textoSelecionado() || ultimaSelecao;
+                    if (!texto) { alert("Selecione primeiro um trecho da página que deseja ouvir."); return; }
+                    falar(texto);
                 });
             }
             if (btnParar) btnParar.addEventListener("click", pararLeitura);
+            if (btnOuvir) btnOuvir.disabled = !temVoz;
+            atualizarBotaoSelecao();
 
             // ----- Tamanho da fonte -----
-            const FONTE_MIN = -2;
-            const FONTE_MAX = 4;
-            const PASSO = 6.25; // % de cada nível (+ A- e A+ mantêm tamanhos regulares)
+            // O CSS usa px, então a escala precisa de uma variável própria:
+            // mudar font-size no <html> não afetaria nada.
+            const FONTE_MIN = -2; // 80%
+            const FONTE_MAX = 5;  // 150%
+            const PASSO = 0.1;    // 10% por nível
+            const CHAVE_FONTE = "acess-fonte";
             const btnFonteMenos = document.getElementById("btnFonteMenos");
             const btnFonteMais = document.getElementById("btnFonteMais");
             const btnFonteReset = document.getElementById("btnFonteReset");
+            const nivelFonte = document.getElementById("acessNivelFonte");
+
+            function escalaDoNivel(nivel) {
+                return 1 + nivel * PASSO;
+            }
+
+            function nivelSalvo() {
+                const bruto = parseFloat(localStorage.getItem(CHAVE_FONTE));
+                return isFinite(bruto) ? bruto : 0;
+            }
 
             function aplicarFonte(nivel) {
                 nivel = Math.max(FONTE_MIN, Math.min(FONTE_MAX, nivel));
-                document.documentElement.style.fontSize = (100 + nivel * PASSO) + "%";
-                localStorage.setItem("acess-fonte", String(nivel));
+                const escala = escalaDoNivel(nivel);
+                document.documentElement.style.setProperty("--fonte-escala", String(escala));
+                localStorage.setItem(CHAVE_FONTE, String(nivel));
                 if (btnFonteMenos) btnFonteMenos.disabled = nivel <= FONTE_MIN;
                 if (btnFonteMais) btnFonteMais.disabled = nivel >= FONTE_MAX;
+                if (nivelFonte) nivelFonte.textContent = Math.round(escala * 100) + "%";
             }
 
             if (btnFonteMenos) btnFonteMenos.addEventListener("click", function () {
-                aplicarFonte((parseFloat(localStorage.getItem("acess-fonte")) || 0) - 1);
+                aplicarFonte(nivelSalvo() - 1);
             });
             if (btnFonteMais) btnFonteMais.addEventListener("click", function () {
-                aplicarFonte((parseFloat(localStorage.getItem("acess-fonte")) || 0) + 1);
+                aplicarFonte(nivelSalvo() + 1);
             });
             if (btnFonteReset) btnFonteReset.addEventListener("click", () => aplicarFonte(0));
 
-            const fonteSalva = parseFloat(localStorage.getItem("acess-fonte"));
-            aplicarFonte(isFinite(fonteSalva) ? fonteSalva : 0);
+            aplicarFonte(nivelSalvo());
         })();
     </script>
 

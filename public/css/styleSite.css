@@ -32,6 +32,9 @@
 
   --fonte: 'Poppins', 'Segoe UI', system-ui, -apple-system, 'Arial', sans-serif;
   --header-altura: 118px;
+
+  /* Escala de fonte controlada pelo painel de acessibilidade (1 = tamanho normal) */
+  --fonte-escala: 1;
 }
 
 /* ======================================================
@@ -150,13 +153,13 @@ section[id] {
 }
 
 .logo-textos h1 {
-  font-size: 24px;
+  font-size: calc(24px * var(--fonte-escala));
   font-weight: 700;
   letter-spacing: 0.3px;
 }
 
 .subtitulo {
-  font-size: 13px;
+  font-size: calc(13px * var(--fonte-escala));
   color: #cfe0ff;
   font-weight: 400;
 }
@@ -175,7 +178,7 @@ section[id] {
   color: #ffffff;
   text-decoration: none;
   font-weight: 600;
-  font-size: 15px;
+  font-size: calc(15px * var(--fonte-escala));
   padding: 6px 2px;
   position: relative;
   transition: color 0.25s ease;
@@ -218,7 +221,7 @@ section[id] {
   color: #fff;
   cursor: pointer;
   font-weight: 600;
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   font-family: var(--fonte);
   transition: background 0.3s, border-color 0.3s, transform 0.15s;
 }
@@ -247,7 +250,7 @@ section[id] {
   height: 44px;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: calc(24px * var(--fonte-escala));
   cursor: pointer;
   transition: background 0.25s;
 }
@@ -284,7 +287,7 @@ section[id] {
   background: transparent;
   box-shadow: none;
   padding: 10px 16px;
-  font-size: 15px;
+  font-size: calc(15px * var(--fonte-escala));
   font-family: var(--fonte);
   color: var(--texto);
 }
@@ -305,7 +308,7 @@ section[id] {
   border: none;
   background: var(--azul-suave);
   color: var(--azul);
-  font-size: 13px;
+  font-size: calc(13px * var(--fonte-escala));
   font-weight: 600;
   font-family: var(--fonte);
   padding: 9px 16px;
@@ -336,7 +339,7 @@ section[id] {
   border-radius: 999px;
   padding: 8px 18px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   color: var(--texto-suave);
 }
 
@@ -346,7 +349,7 @@ section[id] {
   border: 1px solid var(--borda);
   border-radius: 999px;
   padding: 6px 16px;
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   font-weight: 600;
   font-family: var(--fonte);
   cursor: pointer;
@@ -365,7 +368,7 @@ section[id] {
   margin-top: 10px;
   padding: 28px 20px;
   text-align: center;
-  font-size: 16px;
+  font-size: calc(16px * var(--fonte-escala));
   color: var(--texto-suave);
   background: var(--superficie);
   border: 1px dashed var(--borda);
@@ -399,7 +402,7 @@ section[id] {
 }
 
 .hero-content h2 {
-  font-size: 44px;
+  font-size: calc(44px * var(--fonte-escala));
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 16px;
@@ -407,7 +410,7 @@ section[id] {
 }
 
 .hero-content > p {
-  font-size: 20px;
+  font-size: calc(20px * var(--fonte-escala));
   color: #cfe0ff;
   margin-bottom: 36px;
 }
@@ -438,11 +441,11 @@ section[id] {
   align-items: center;
   gap: 10px;
   color: #f4f7ff;
-  font-size: 15px;
+  font-size: calc(15px * var(--fonte-escala));
 }
 
 .info-item .icon {
-  font-size: 18px;
+  font-size: calc(18px * var(--fonte-escala));
 }
 
 /* ======================================================
@@ -458,7 +461,7 @@ section[id] {
 
 .titulo-secao {
   text-align: center;
-  font-size: 34px;
+  font-size: calc(34px * var(--fonte-escala));
   font-weight: 700;
   color: var(--azul-escuro);
   margin-bottom: 14px;
@@ -468,7 +471,7 @@ section[id] {
 .subtitulo-secao {
   text-align: center;
   color: var(--texto-suave);
-  font-size: 16px;
+  font-size: calc(16px * var(--fonte-escala));
   max-width: 640px;
   margin: 0 auto 44px;
 }
@@ -486,7 +489,7 @@ section[id] {
   text-align: center;
   display: inline-block;
   transition: all 0.25s ease;
-  font-size: 16px;
+  font-size: calc(16px * var(--fonte-escala));
   font-family: var(--fonte);
   line-height: 1.4;
 }
@@ -550,7 +553,7 @@ section[id] {
   border: 1px solid var(--borda);
   background: var(--superficie);
   color: var(--texto-suave);
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   font-weight: 600;
   font-family: var(--fonte);
   cursor: pointer;
@@ -621,20 +624,20 @@ section[id] {
 
 .card-content h3 {
   color: var(--azul-escuro);
-  font-size: 16px;
+  font-size: calc(16px * var(--fonte-escala));
   font-weight: 700;
 }
 
 .card-content p {
   color: var(--texto-suave);
-  font-size: 13px;
+  font-size: calc(13px * var(--fonte-escala));
   line-height: 1.5;
 }
 
 .categoria-vermais {
   margin-top: auto;
   color: var(--azul);
-  font-size: 13px;
+  font-size: calc(13px * var(--fonte-escala));
   font-weight: 700;
   padding-top: 10px;
 }
@@ -690,7 +693,7 @@ section[id] {
   left: 12px;
   padding: 5px 14px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fonte-escala));
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.3px;
@@ -715,13 +718,13 @@ section[id] {
 
 .produto-info h3 {
   color: var(--texto);
-  font-size: 18px;
+  font-size: calc(18px * var(--fonte-escala));
   font-weight: 700;
   line-height: 1.35;
 }
 
 .preco {
-  font-size: 26px;
+  font-size: calc(26px * var(--fonte-escala));
   color: #c00;
   font-weight: 800;
   letter-spacing: 0.3px;
@@ -729,7 +732,7 @@ section[id] {
 
 .categoria {
   color: var(--azul-medio);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--fonte-escala));
   font-weight: 600;
   background: var(--azul-suave);
   align-self: flex-start;
@@ -739,7 +742,7 @@ section[id] {
 
 .quantidade {
   color: var(--texto-suave);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--fonte-escala));
 }
 
 .produto-acoes {
@@ -752,7 +755,7 @@ section[id] {
 .produto-acoes .btn {
   width: 100%;
   padding: 12px 18px;
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
 }
 
 .btn-ver-detalhes {
@@ -832,7 +835,7 @@ body.modal-aberto {
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.06);
   color: var(--texto);
-  font-size: 26px;
+  font-size: calc(26px * var(--fonte-escala));
   line-height: 1;
   cursor: pointer;
   z-index: 2;
@@ -873,7 +876,7 @@ body.modal-aberto {
 
 .modal-info h3 {
   color: var(--azul-escuro);
-  font-size: 24px;
+  font-size: calc(24px * var(--fonte-escala));
   font-weight: 700;
   line-height: 1.3;
 }
@@ -885,7 +888,7 @@ body.modal-aberto {
 
 .modal-descricao {
   color: var(--texto-suave);
-  font-size: 15px;
+  font-size: calc(15px * var(--fonte-escala));
   line-height: 1.7;
 }
 
@@ -934,12 +937,12 @@ body.modal-aberto {
 }
 
 .icon-grande {
-  font-size: 34px;
+  font-size: calc(34px * var(--fonte-escala));
 }
 
 .localizacao-info h3 {
   color: var(--azul-escuro);
-  font-size: 22px;
+  font-size: calc(22px * var(--fonte-escala));
 }
 
 .localizacao-info p {
@@ -955,13 +958,13 @@ body.modal-aberto {
 .horario-info h4 {
   color: var(--azul-escuro);
   margin-bottom: 12px;
-  font-size: 17px;
+  font-size: calc(17px * var(--fonte-escala));
 }
 
 .horario-info p {
   color: var(--texto-suave);
   margin-bottom: 8px;
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--fonte-escala));
 }
 
 .horario-info .fechado {
@@ -1020,13 +1023,13 @@ body.modal-aberto {
 
 .fale-conosco-cta p {
   margin: 0;
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--fonte-escala));
 }
 
 .fale-conosco-vermais {
   color: var(--azul);
   font-weight: 700;
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   white-space: nowrap;
 }
 
@@ -1054,14 +1057,14 @@ body.modal-aberto {
 
 .modal-contato-cabecalho h3 {
   color: var(--azul-escuro);
-  font-size: 24px;
+  font-size: calc(24px * var(--fonte-escala));
   font-weight: 700;
   margin-bottom: 8px;
 }
 
 .modal-contato-cabecalho p {
   color: var(--texto-suave);
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--fonte-escala));
   line-height: 1.7;
   max-width: 380px;
   margin: 0 auto;
@@ -1101,7 +1104,7 @@ body.modal-aberto {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: calc(20px * var(--fonte-escala));
 }
 
 .contato-texto {
@@ -1113,19 +1116,19 @@ body.modal-aberto {
 
 .contato-texto strong {
   color: var(--azul-escuro);
-  font-size: 15px;
+  font-size: calc(15px * var(--fonte-escala));
   font-weight: 700;
 }
 
 .contato-texto small {
   color: var(--texto-suave);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--fonte-escala));
   word-break: break-word;
 }
 
 .contato-seta {
   color: var(--azul);
-  font-size: 18px;
+  font-size: calc(18px * var(--fonte-escala));
   flex-shrink: 0;
 }
 
@@ -1136,7 +1139,7 @@ body.modal-aberto {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
+  font-size: calc(16px * var(--fonte-escala));
   line-height: 1;
   margin-top: 2px;
 }
@@ -1150,7 +1153,7 @@ body.modal-aberto {
 }
 
 .avaliacao-contagem {
-  font-size: 13px;
+  font-size: calc(13px * var(--fonte-escala));
   color: var(--texto-suave);
 }
 
@@ -1162,7 +1165,7 @@ body.modal-aberto {
 }
 
 .modal-estrelas-visual {
-  font-size: 22px;
+  font-size: calc(22px * var(--fonte-escala));
   line-height: 1;
   display: flex;
   align-items: center;
@@ -1177,7 +1180,7 @@ body.modal-aberto {
 }
 
 .modal-nota-texto {
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   color: var(--texto-suave);
 }
 
@@ -1187,7 +1190,7 @@ body.modal-aberto {
   border: 1px solid var(--borda);
   border-radius: 999px;
   padding: 6px 14px;
-  font-size: 13px;
+  font-size: calc(13px * var(--fonte-escala));
   font-weight: 600;
   cursor: pointer;
   font-family: var(--fonte);
@@ -1206,7 +1209,7 @@ body.modal-aberto {
 }
 
 .estrela-input {
-  font-size: 30px;
+  font-size: calc(30px * var(--fonte-escala));
   color: #cbd5e1;
   cursor: pointer;
   line-height: 1;
@@ -1243,7 +1246,7 @@ body.modal-aberto {
   display: block;
   color: var(--azul-escuro);
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--fonte-escala));
   margin-bottom: 8px;
 }
 
@@ -1254,7 +1257,7 @@ textarea {
   padding: 12px 14px;
   border: 1px solid var(--borda);
   border-radius: 10px;
-  font-size: 15px;
+  font-size: calc(15px * var(--fonte-escala));
   font-family: var(--fonte);
   background: #fff;
   color: var(--texto);
@@ -1302,7 +1305,7 @@ textarea {
 .item-orcamento input[type="number"] {
   width: 100%;
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
 }
 
 .item-orcamento .qtd-item-orcamento {
@@ -1310,14 +1313,14 @@ textarea {
 }
 
 .subtotal-item-orcamento {
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--fonte-escala));
   font-weight: 800;
   color: #c00;
   white-space: nowrap;
 }
 
 .estoque-item-orcamento {
-  font-size: 12px;
+  font-size: calc(12px * var(--fonte-escala));
   color: var(--texto-suave);
   white-space: nowrap;
 }
@@ -1329,7 +1332,7 @@ textarea {
   border-radius: 50%;
   background: #e53935;
   color: #fff;
-  font-size: 20px;
+  font-size: calc(20px * var(--fonte-escala));
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -1353,7 +1356,7 @@ textarea {
   background: transparent;
   color: var(--azul);
   font-family: var(--fonte);
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
@@ -1378,7 +1381,7 @@ textarea {
 }
 
 .total-orcamento {
-  font-size: 22px;
+  font-size: calc(22px * var(--fonte-escala));
   font-weight: 800;
   color: #c00;
 }
@@ -1392,7 +1395,7 @@ textarea {
 }
 
 .obs-frete {
-  font-size: 11px;
+  font-size: calc(11px * var(--fonte-escala));
   color: var(--texto-suave);
   font-weight: 500;
 }
@@ -1400,7 +1403,7 @@ textarea {
 .erro-orcamento {
   margin-top: 12px;
   color: #c0392b;
-  font-size: 14px;
+  font-size: calc(14px * var(--fonte-escala));
   font-weight: 600;
 }
 
@@ -1416,17 +1419,17 @@ textarea {
 
 .rodape p {
   margin: 5px 0;
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--fonte-escala));
 }
 
 .rodape .rodape-marca {
   font-weight: 700;
-  font-size: 16px;
+  font-size: calc(16px * var(--fonte-escala));
 }
 
 .rodape-info {
   color: #a9c6ec;
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--fonte-escala));
 }
 
 /* ======================================================
@@ -1641,14 +1644,29 @@ textarea {
   cursor: not-allowed;
 }
 
-/* VLibras: oculto até o usuário ativar pelo painel */
-#vlibras-wrap {
-  display: none;
+.btn-acessibilidade:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--fundo-cinza);
+  color: var(--texto-claro);
 }
 
-#vlibras-wrap.aberto {
-  display: block;
-  z-index: 960;
+.btn-acessibilidade:disabled:hover {
+  background: var(--fundo-cinza);
+  color: var(--texto-claro);
+}
+
+.acess-rotulo b {
+  color: var(--azul);
+}
+
+.acess-dica {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--texto-suave);
+  background: var(--fundo-cinza);
+  border-radius: 8px;
+  padding: 7px 9px;
 }
 
 /* ======================================================
@@ -1656,7 +1674,7 @@ textarea {
 ====================================================== */
 .estado-vazio {
   padding: 40px 20px;
-  font-size: 17px;
+  font-size: calc(17px * var(--fonte-escala));
   text-align: center;
   color: var(--texto-suave);
   background: var(--superficie);
@@ -1942,6 +1960,10 @@ body.dark-mode .btn-acess-fonte:hover {
   background: #1b2c47;
 }
 
+body.dark-mode .acess-dica {
+  color: var(--texto-suave);
+}
+
 /* ======================================================
    RESPONSIVO
 ====================================================== */
@@ -2012,7 +2034,7 @@ body.dark-mode .btn-acess-fonte:hover {
   .menu a {
     padding: 12px 14px;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: calc(16px * var(--fonte-escala));
   }
 
   .menu a:hover {
@@ -2024,11 +2046,11 @@ body.dark-mode .btn-acess-fonte:hover {
   }
 
   .hero-content h2 {
-    font-size: 32px;
+    font-size: calc(32px * var(--fonte-escala));
   }
 
   .hero-content > p {
-    font-size: 18px;
+    font-size: calc(18px * var(--fonte-escala));
   }
 
   .hero-info {
@@ -2040,7 +2062,7 @@ body.dark-mode .btn-acess-fonte:hover {
   }
 
   .titulo-secao {
-    font-size: 28px;
+    font-size: calc(28px * var(--fonte-escala));
   }
 
   .secao {
@@ -2059,15 +2081,15 @@ body.dark-mode .btn-acess-fonte:hover {
   }
 
   .logo-textos h1 {
-    font-size: 20px;
+    font-size: calc(20px * var(--fonte-escala));
   }
 
   .subtitulo {
-    font-size: 12px;
+    font-size: calc(12px * var(--fonte-escala));
   }
 
   .dark-mode-btn {
-    font-size: 13px;
+    font-size: calc(13px * var(--fonte-escala));
     padding: 8px 12px;
   }
 
@@ -2103,7 +2125,7 @@ body.dark-mode .btn-acess-fonte:hover {
 
   .pill-categoria {
     flex: 0 0 auto;
-    font-size: 13px;
+    font-size: calc(13px * var(--fonte-escala));
     padding: 8px 16px;
   }
 
@@ -2112,11 +2134,11 @@ body.dark-mode .btn-acess-fonte:hover {
   }
 
   .hero-content h2 {
-    font-size: 26px;
+    font-size: calc(26px * var(--fonte-escala));
   }
 
   .hero-content > p {
-    font-size: 16px;
+    font-size: calc(16px * var(--fonte-escala));
     margin-bottom: 26px;
   }
 
