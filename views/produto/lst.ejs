@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <title>Lista de Produtos</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
-  <%- include('../cabecalho.ejs') %>
+<%- include('../cabecalho.ejs') %>
 
   <div class="container">
     <h2>Lista de Produtos</h2>
@@ -85,8 +77,6 @@
     <br />
   </div>
 
-  <%- include('../rodape.ejs') %>
-
   <script>
     (function () {
       const alertaEstoque = <%- JSON.stringify({
@@ -126,5 +116,5 @@
       });
     }
   </script>
-</body>
-</html>
+
+  <%- include('../rodape.ejs') %>

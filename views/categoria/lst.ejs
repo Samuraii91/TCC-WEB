@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <title>Listagem de Categorias</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <%- include('../cabecalho.ejs') %>
+<%- include('../cabecalho.ejs') %>
 
   <div class="container">
     <h2>Categorias Cadastradas</h2>
@@ -63,8 +55,6 @@
     <br />
   </div>
 
-  <%- include('../rodape.ejs') %>
-
   <script>
     function removerAcentos(texto) {
       return (texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -81,5 +71,5 @@
       });
     }
   </script>
-</body>
-</html>
+
+  <%- include('../rodape.ejs') %>

@@ -1,8 +1,7 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import routes from '../routes/route.js'; // rotas externas
-import { createServer } from 'http';
+import routes from './routes/route.js'; // rotas externas
 
 const app = express();
 
@@ -19,6 +18,5 @@ app.set('views', join(__dirname, '../views'));
 
 // Rotas
 app.use(routes)
-app.listen(3001)
 // Exporta o handler compatível com Vercel
 export default app;

@@ -5,7 +5,18 @@ import { verificarLogin } from "../middlewares/auth.js";
 
 const router = express.Router();
 const controle = new CategoriaController();
-const upload = multer(); // ← NECESSÁRIO para req.file funcionar
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype || !file.mimetype.startsWith("image/")) {
+      const erro = new Error("Envie apenas arquivos de imagem.");
+      erro.status = 400;
+      return cb(erro);
+    }
+    cb(null, true);
+  }
+}); // ← NECESSÁRIO para req.file funcionar
 
 // 🔒 Todas as rotas de categoria exigem login
 router.use("/categoria", verificarLogin);

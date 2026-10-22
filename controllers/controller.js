@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import Produto from '../models/Produto.js'
 import Categoria from '../models/Categoria.js'
 import Servico from '../models/Servico.js'
@@ -24,7 +25,7 @@ export default class Controller {
       const { id, nota } = req.body
       const valor = Number(nota)
 
-      if (!id || !valor || valor < 1 || valor > 5) {
+      if (!id || !mongoose.isValidObjectId(id) || !valor || valor < 1 || valor > 5) {
         return res.status(400).json({ ok: false, erro: 'Nota inválida' })
       }
 
@@ -52,6 +53,15 @@ export default class Controller {
   salvarContato = async (req, res) => {
     try {
       const { nome, email, telefone, produto, quantidade, mensagem } = req.body
+
+      if (!nome || !email || !telefone) {
+        return res.status(400).json({ ok: false, erro: 'Nome, e-mail e telefone são obrigatórios' })
+      }
+
+      const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      if (!emailValido) {
+        return res.status(400).json({ ok: false, erro: 'E-mail inválido' })
+      }
 
       const nomesProdutos = typeof req.body.produtoItem === 'string'
         ? [req.body.produtoItem]
@@ -81,7 +91,7 @@ export default class Controller {
         email,
         telefone,
         produto: produto || (itens[0] ? itens[0].produto : undefined),
-        quantidade: quantidade || (itens[0] ? itens[0].quantidade : undefined),
+        quantidade: Number(quantidade) || (itens[0] ? itens[0].quantidade : undefined),
         itens: itens.length > 0 ? itens : undefined,
         total: total > 0 ? total : undefined,
         mensagem
@@ -102,7 +112,9 @@ export default class Controller {
   adminLogin = (req, res) => {
     const { senha } = req.body
 
-    if (senha === 'admin1502') {
+    const senhaAdmin = process.env.ADMIN_SENHA || 'admin1502'
+
+    if (senha === senhaAdmin) {
       return res.redirect('/login')
     }
 

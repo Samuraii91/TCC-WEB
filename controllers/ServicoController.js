@@ -1,5 +1,9 @@
 import Servico from '../models/Servico.js'
 
+function escaparRegex(texto) {
+  return String(texto || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export default class ServicoController {
   constructor(caminhoBase = 'servico/') {
     this.caminhoBase = caminhoBase
@@ -10,7 +14,7 @@ export default class ServicoController {
         res.render(this.caminhoBase + 'add')
       } catch (err) {
         console.error(err)
-        res.send('Erro ao abrir o formulário de serviço.')
+        res.status(500).send('Erro ao abrir o formulário de serviço.')
       }
     }
 
@@ -25,7 +29,7 @@ export default class ServicoController {
         res.redirect('/' + this.caminhoBase + 'lst')
       } catch (err) {
         console.error(err)
-        res.send('Erro ao adicionar serviço.')
+        res.status(500).send('Erro ao adicionar serviço.')
       }
     }
 
@@ -36,19 +40,19 @@ export default class ServicoController {
         res.render(this.caminhoBase + 'lst', { servicos })
       } catch (err) {
         console.error(err)
-        res.send('Erro ao listar serviços.')
+        res.status(500).send('Erro ao listar serviços.')
       }
     }
 
     // Buscar serviço por nome
     this.find = async (req, res) => {
       try {
-        const filtro = req.body.filtro
+        const filtro = escaparRegex(req.body.filtro)
         const servicos = await Servico.find({ nome: { $regex: filtro, $options: 'i' } })
         res.render(this.caminhoBase + 'lst', { servicos })
       } catch (err) {
         console.error(err)
-        res.send('Erro ao buscar serviços.')
+        res.status(500).send('Erro ao buscar serviços.')
       }
     }
 
@@ -56,10 +60,13 @@ export default class ServicoController {
     this.openEdt = async (req, res) => {
       try {
         const servico = await Servico.findById(req.params.id)
+        if (!servico) {
+          return res.status(404).send('Serviço não encontrado')
+        }
         res.render(this.caminhoBase + 'edt', { servico })
       } catch (err) {
         console.error(err)
-        res.send('Erro ao abrir formulário de edição.')
+        res.status(500).send('Erro ao abrir formulário de edição.')
       }
     }
 
@@ -70,11 +77,11 @@ export default class ServicoController {
           nome: req.body.nome,
           descricao: req.body.descricao,
           preco: Number(req.body.preco) // converte para número
-        })
+        }, { runValidators: true })
         res.redirect('/' + this.caminhoBase + 'lst')
       } catch (err) {
         console.error(err)
-        res.send('Erro ao editar serviço.')
+        res.status(500).send('Erro ao editar serviço.')
       }
     }
 
@@ -85,7 +92,7 @@ export default class ServicoController {
         res.redirect('/' + this.caminhoBase + 'lst')
       } catch (err) {
         console.error(err)
-        res.send('Erro ao deletar serviço.')
+        res.status(500).send('Erro ao deletar serviço.')
       }
     }
   }

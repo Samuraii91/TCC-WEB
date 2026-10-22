@@ -149,7 +149,7 @@
 
                         <div class="produto-info">
                             <h3><%= prod.nome %></h3>
-                            <p class="preco">R$ <%= prod.preco.toFixed(2) %></p>
+                            <p class="preco">R$ <%= Number(prod.preco || 0).toFixed(2) %></p>
 
                             <div class="produto-avaliacao" data-nota="<%= notaMedia(prod.avaliacoes).toFixed(1) %>" data-avaliacoes="<%= (prod.avaliacoes || []).length %>"></div>
 
@@ -823,7 +823,7 @@
         }
 
         // ----- Orçamento com múltiplos produtos -----
-        const PRODUTOS_DADOS = JSON.parse('<%- JSON.stringify(produtos.map(p => ({ nome: p.nome, preco: p.preco, quantidade: p.quantidade }))).replace(/</g, "\\u003c") %>');
+        const PRODUTOS_DADOS = <%- JSON.stringify(produtos.map(p => ({ nome: p.nome, preco: p.preco, quantidade: p.quantidade }))).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029') %>;
         const dadosProdutos = {};
         PRODUTOS_DADOS.forEach(p => {
             dadosProdutos[p.nome] = { preco: p.preco, quantidade: p.quantidade };

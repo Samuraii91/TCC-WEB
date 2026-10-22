@@ -22,9 +22,9 @@ export default class ProdutoController {
       await Produto.create({
         nome,
         descricao,
-        preco,
-        categoria,
-        quantidade,
+        preco: Number(preco),
+        categoria: categoria || undefined,
+        quantidade: Number(quantidade) || 0,
         imagemBase64: req.file ? req.file.buffer.toString("base64") : null,
         mimetype: req.file ? req.file.mimetype : null,
       });
@@ -116,14 +116,22 @@ export default class ProdutoController {
     try {
       const { nome, descricao, preco, categoria, quantidade } = req.body;
 
-      const updateData = { nome, descricao, preco, categoria, quantidade };
+      const updateData = {
+        nome,
+        descricao,
+        preco: Number(preco),
+        categoria: categoria || undefined,
+        quantidade: Number(quantidade) || 0
+      };
 
       if (req.file) {
         updateData.imagemBase64 = req.file.buffer.toString("base64");
         updateData.mimetype = req.file.mimetype;
       }
 
-      await Produto.findByIdAndUpdate(req.params.id, updateData);
+      await Produto.findByIdAndUpdate(req.params.id, updateData, {
+        runValidators: true
+      });
       res.redirect("/produto/lst");
     } catch (erro) {
       console.error("Erro ao editar:", erro);

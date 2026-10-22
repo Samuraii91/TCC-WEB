@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 export default class AuthController {
   // 🔹 Exibir tela de login
   loginPage = (req, res) => {
-    res.render("login", { erro: null, sucesso: null });
+    res.render("usuario/login", { erro: null, sucesso: null });
   };
 
   // 🔹 Exibir tela de cadastro
@@ -18,6 +18,13 @@ export default class AuthController {
     const { nome, email, senha } = req.body;
 
     try {
+      if (!nome || !email || !senha) {
+        return res.render("cadastro/cadastro", {
+          erro: "Preencha nome, e-mail e senha.",
+          sucesso: null,
+        });
+      }
+
       const userExists = await Usuario.findOne({ email });
       if (userExists) {
         return res.render("cadastro/cadastro", {
@@ -32,7 +39,6 @@ export default class AuthController {
       const novoUsuario = new Usuario({ nome, email, senha: senhaCriptografada });
       await novoUsuario.save();
 
-      // ✅ Redireciona corretamente para a tela de login
       res.redirect("/login");
     } catch (err) {
       console.error("Erro ao cadastrar usuário:", err);

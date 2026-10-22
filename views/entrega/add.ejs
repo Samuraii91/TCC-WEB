@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <title>Adicionar Entrega</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
-  <%- include('../cabecalho.ejs') %>
+<%- include('../cabecalho.ejs') %>
 
   <div class="container">
     <h2>Adicionar Entrega</h2>
@@ -51,8 +43,6 @@
       <a href="/entrega/lst" class="btn-voltar">↩ Voltar</a>
     </div>
   </div>
-
-  <%- include('../rodape.ejs') %>
 
   <script>
     const PRODUTOS_ENTREGA = <%- JSON.stringify(produtos.map(p => ({ id: p._id.toString(), nome: p.nome }))) %>;
@@ -125,5 +115,5 @@
       criarLinhaEntrega();
     }
   </script>
-</body>
-</html>
+
+  <%- include('../rodape.ejs') %>

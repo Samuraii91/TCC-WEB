@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <title>Lista de Serviços</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
-  <%- include('../cabecalho.ejs') %>
+<%- include('../cabecalho.ejs') %>
 
   <div class="container">
     <h2>Lista de Serviços</h2>
@@ -41,7 +33,7 @@
           <tr>
             <td><%= s.nome %></td>
             <td><%= s.descricao %></td>
-            <td>R$ <%= s.preco != null ? s.preco.toFixed(2) : '0.00' %></td>
+            <td>R$ <%= Number(s.preco || 0).toFixed(2) %></td>
             <td>
               <div class="action-buttons">
                 <a href="/servico/edt/<%= s._id %>" class="edit">Editar</a>
@@ -61,8 +53,6 @@
     </div>
   </div>
 
-  <%- include('../rodape.ejs') %>
-
   <script>
     function removerAcentos(texto) {
       return (texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -79,5 +69,5 @@
       });
     }
   </script>
-</body>
-</html>
+
+  <%- include('../rodape.ejs') %>
