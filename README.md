@@ -265,7 +265,33 @@ abrindo pelo botão flutuante ♿.
 - **Vercel** (entrada `api/index.js`, definida em `vercel.json`) — duplicata do
   `index.js` sem healthcheck e sem autoping.
 
-Variáveis de ambiente reconhecidas: apenas `PORT` e `RENDER_EXTERNAL_URL`.
+Variáveis de ambiente reconhecidas: `PORT`, `RENDER_EXTERNAL_URL`,
+`MONGODB_URI`, `SESSION_SECRET`, `ADMIN_SENHA`, `VAPID_PUBLIC_KEY`,
+`VAPID_PRIVATE_KEY` e `VAPID_SUBJECT`.
+
+### 9.1 Notificações push (Web Push)
+
+O painel administrativo usa **Web Push padrão** (`web-push` + Service Worker),
+sem serviço externo.
+
+- **Ativação** — botão **"Ativar notificações"** na topbar de qualquer página do
+  painel. O navegador pede permissão e a inscrição é salva em
+  `PushSubscription` (endpoint + chaves `p256dh`/`auth`).
+- **Teste** — depois de ativar, aparece o botão **"Testar"** ao lado.
+- **Disparos automáticos**:
+  - novo orçamento recebido em `POST /site/contato`;
+  - produto cadastrado/editado que fica com estoque **≤ 5**.
+- **Service Worker** — `public/sw.js` exibe a notificação e, ao clicar, foca/abre
+  a página correspondente (`/contato/lst` ou `/produto/lst`).
+- **Rotas** — `GET /push/chave-publica`, `POST /push/subscribe`,
+  `POST /push/unsubscribe` e `POST /push/testar` (todas exigem login).
+- **Chaves VAPID** — localmente são geradas automaticamente em `.vapid.json`
+  (ignorado pelo Git). Em produção, defina `VAPID_PUBLIC_KEY` e
+  `VAPID_PRIVATE_KEY` no ambiente; para gerar um par novo rode
+  `npm run vapid:keys`. Sem essas variáveis, cada cold start da Vercel gera
+  chaves diferentes e invalida as inscrições antigas.
+- **Requisito do navegador** — push só funciona em `https://` ou em
+  `http://localhost`. Em navegadores sem suporte, o botão fica desabilitado.
 
 ---
 

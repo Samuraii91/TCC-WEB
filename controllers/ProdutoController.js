@@ -1,5 +1,6 @@
 import Produto from "../models/Produto.js";
 import Categoria from "../models/Categoria.js";
+import { notificarEstoqueBaixo } from "../services/pushService.js";
 
 export default class ProdutoController {
 
@@ -19,7 +20,7 @@ export default class ProdutoController {
     try {
       const { nome, descricao, preco, categoria, quantidade } = req.body;
 
-      await Produto.create({
+      const produto = await Produto.create({
         nome,
         descricao,
         preco: Number(preco),
@@ -28,6 +29,14 @@ export default class ProdutoController {
         imagemBase64: req.file ? req.file.buffer.toString("base64") : null,
         mimetype: req.file ? req.file.mimetype : null,
       });
+
+      if (Number(produto.quantidade) > 0) {
+        try {
+          await notificarEstoqueBaixo(produto);
+        } catch (erroPush) {
+          console.error("Erro ao notificar estoque baixo:", erroPush);
+        }
+      }
 
       res.redirect("/produto/lst");
     } catch (erro) {
@@ -116,6 +125,8 @@ export default class ProdutoController {
     try {
       const { nome, descricao, preco, categoria, quantidade } = req.body;
 
+      const anterior = await Produto.findById(req.params.id);
+
       const updateData = {
         nome,
         descricao,
@@ -129,9 +140,19 @@ export default class ProdutoController {
         updateData.mimetype = req.file.mimetype;
       }
 
-      await Produto.findByIdAndUpdate(req.params.id, updateData, {
-        runValidators: true
+      const produto = await Produto.findByIdAndUpdate(req.params.id, updateData, {
+        runValidators: true,
+        new: true
       });
+
+      if (produto && (!anterior || Number(anterior.quantidade) > 5)) {
+        try {
+          await notificarEstoqueBaixo(produto);
+        } catch (erroPush) {
+          console.error("Erro ao notificar estoque baixo:", erroPush);
+        }
+      }
+
       res.redirect("/produto/lst");
     } catch (erro) {
       console.error("Erro ao editar:", erro);

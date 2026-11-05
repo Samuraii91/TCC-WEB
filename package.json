@@ -100,11 +100,13 @@
     "unpipe": "^1.0.0",
     "utils-merge": "^1.0.1",
     "vary": "^1.1.2",
+    "web-push": "^3.6.7",
     "webidl-conversions": "^7.0.0",
     "whatwg-url": "^14.2.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "vapid:keys": "node scripts/gerar-chaves-vapid.js"
   },
   "author": "",
   "license": "ISC",

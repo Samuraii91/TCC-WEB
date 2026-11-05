@@ -12,6 +12,7 @@ import servicoRoutes from './routes/servicoRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import contatoRoutes from './routes/contatoRoutes.js';
 import siteRoutes from './routes/route.js';
+import pushRoutes from './routes/pushRoutes.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Configuração de parser
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Configuração do EJS
 app.set('view engine', 'ejs');
@@ -63,6 +65,7 @@ app.use('/', servicoRoutes);     // Serviços
 app.use('/', authRoutes);        // Cadastro de usuários
 app.use('/', contatoRoutes);     // Orçamentos
 app.use('/', siteRoutes);        // Rotas do site
+app.use('/', pushRoutes);        // Notificações push
 
 // Healthcheck simples (usado pelo autoping e por monitoramentos)
 app.get('/healthcheck', (req, res) => {

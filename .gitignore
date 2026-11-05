@@ -4,6 +4,7 @@ node_modules/
 # Ambiente / segredos
 .env
 .env.local
+.vapid.json
 
 # Logs
 *.log

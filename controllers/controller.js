@@ -4,6 +4,7 @@ import Categoria from '../models/Categoria.js'
 import Servico from '../models/Servico.js'
 import Entrega from '../models/Entrega.js'
 import Contato from '../models/Contato.js'
+import { enviarNotificacao } from '../services/pushService.js'
 
 export default class Controller {
   siteIndex = async (req, res) => {
@@ -86,7 +87,7 @@ export default class Controller {
 
       const total = itens.reduce((soma, item) => soma + (item.preco * item.quantidade), 0)
 
-      await Contato.create({
+      const contato = await Contato.create({
         nome,
         email,
         telefone,
@@ -96,6 +97,24 @@ export default class Controller {
         total: total > 0 ? total : undefined,
         mensagem
       })
+
+      const resumoItens = itens.length > 0
+        ? itens.map(item => `${item.quantidade}x ${item.produto}`).join(', ')
+        : (produto || '')
+
+      try {
+        await enviarNotificacao({
+          title: 'Novo orçamento recebido',
+          body: `${nome} enviou um orçamento${total > 0 ? ' de R$ ' + total.toFixed(2) : ''}${resumoItens ? ': ' + resumoItens : ''}.`,
+          icon: '/img/logo.png',
+          badge: '/img/logo.png',
+          url: '/contato/lst',
+          tag: `orcamento-${contato._id}`
+        })
+      } catch (erroPush) {
+        console.error('Erro ao enviar notificação de orçamento:', erroPush)
+      }
+
       res.status(200).json({ ok: true })
     } catch (erro) {
       console.log(erro)

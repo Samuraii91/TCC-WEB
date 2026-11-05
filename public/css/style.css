@@ -344,6 +344,62 @@ a {
   box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5);
 }
 
+.topbar-push,
+.topbar-push-teste {
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--texto);
+  background: var(--card);
+  border: 1px solid var(--borda);
+  padding: 7px 14px;
+  border-radius: 999px;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.topbar-push:hover,
+.topbar-push-teste:hover {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: var(--azul-claro);
+}
+
+.topbar-push.ativo {
+  color: #052e16;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-color: transparent;
+}
+
+.topbar-push:disabled,
+.topbar-push-teste:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.push-aviso {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  max-width: 320px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--borda);
+  color: var(--texto);
+  font-size: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.push-aviso.visivel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .conteudo {
   flex: 1;
   padding: 30px 36px;
@@ -1318,6 +1374,15 @@ a.del:hover {
 @media (max-width: 560px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .topbar-push-teste {
+    display: none !important;
+  }
+
+  .topbar-push {
+    padding: 7px 10px;
+    font-size: 12px;
   }
 
   .container {

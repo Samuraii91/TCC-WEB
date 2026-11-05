@@ -55,6 +55,8 @@
                         <% if (typeof usuarioNome !== 'undefined' && usuarioNome) { %>
                             <span class="topbar-usuario">👤 <strong><%= usuarioNome %></strong></span>
                         <% } %>
+                        <button type="button" id="btnPush" class="topbar-push" title="Ativar notificações push">Ativar notificações</button>
+                        <button type="button" id="btnPushTeste" class="topbar-push-teste" hidden>Testar</button>
                         <a href="/site" target="_blank" class="topbar-link">Ver site</a>
                         <a href="/logout" class="topbar-sair">Sair</a>
                     </div>
