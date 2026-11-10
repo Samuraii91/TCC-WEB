@@ -28,6 +28,21 @@
     return saida
   }
 
+  function chaveDaAssinatura(assinatura) {
+    var chave = assinatura && assinatura.options && assinatura.options.applicationServerKey
+
+    if (!chave) return null
+
+    var bytes = new Uint8Array(chave)
+    var binario = ''
+
+    for (var i = 0; i < bytes.length; i++) {
+      binario += String.fromCharCode(bytes[i])
+    }
+
+    return window.btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  }
+
   function atualizarInterface(assinatura) {
     if (assinatura) {
       botao.textContent = 'Notificações ativas'
@@ -65,29 +80,39 @@
     return registro
   }
 
-  async function assinar() {
+  async function obterChaveServidor() {
     var resposta = await fetch('/push/chave-publica')
+
     if (!resposta.ok) {
       throw new Error('Não foi possível obter a chave pública.')
     }
 
     var dados = await resposta.json()
-    var registroSw = await obterRegistro()
+    return dados.publicKey
+  }
 
-    var assinatura = await registroSw.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: base64ParaUint8Array(dados.publicKey)
-    })
-
-    var salvar = await fetch('/push/subscribe', {
+  async function salvarAssinatura(assinatura) {
+    var resposta = await fetch('/push/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(assinatura)
     })
 
-    if (!salvar.ok) {
+    if (!resposta.ok) {
       throw new Error('Não foi possível salvar a assinatura.')
     }
+  }
+
+  async function assinar() {
+    var chavePublica = await obterChaveServidor()
+    var registroSw = await obterRegistro()
+
+    var assinatura = await registroSw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: base64ParaUint8Array(chavePublica)
+    })
+
+    await salvarAssinatura(assinatura)
 
     assinaturaAtual = assinatura
     atualizarInterface(assinatura)
@@ -105,6 +130,80 @@
     assinaturaAtual = null
     atualizarInterface(null)
     avisar('Notificações desativadas.')
+  }
+
+  async function sincronizar() {
+    var registroSw = await obterRegistro()
+    var assinatura = await registroSw.pushManager.getSubscription()
+
+    if (!assinatura) {
+      assinaturaAtual = null
+      atualizarInterface(null)
+      return
+    }
+
+    var chaveServidor = null
+
+    try {
+      chaveServidor = await obterChaveServidor()
+    } catch (erro) {
+      console.warn('Não foi possível consultar a chave pública do push:', erro)
+    }
+
+    var chaveAssinatura = chaveDaAssinatura(assinatura)
+
+    if (chaveServidor && chaveAssinatura && chaveServidor !== chaveAssinatura) {
+      var endpointAntigo = assinatura.endpoint
+
+      try {
+        await assinatura.unsubscribe()
+
+        assinatura = await registroSw.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: base64ParaUint8Array(chaveServidor)
+        })
+
+        await salvarAssinatura(assinatura)
+
+        if (endpointAntigo !== assinatura.endpoint) {
+          fetch('/push/unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: endpointAntigo })
+          }).catch(function () {})
+        }
+
+        avisar('Notificações renovadas. Tudo certo!')
+      } catch (erro) {
+        console.error('Erro ao renovar a assinatura push:', erro)
+        assinaturaAtual = null
+        atualizarInterface(null)
+        avisar('Reative as notificações clicando no botão.')
+        return
+      }
+    } else {
+      try {
+        var respostaStatus = await fetch('/push/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: assinatura.endpoint })
+        })
+
+        if (respostaStatus.ok) {
+          var status = await respostaStatus.json()
+
+          if (status && status.inscrito === false) {
+            await salvarAssinatura(assinatura)
+            avisar('Assinatura de notificações restaurada.')
+          }
+        }
+      } catch (erro) {
+        console.warn('Não foi possível verificar a assinatura no servidor:', erro)
+      }
+    }
+
+    assinaturaAtual = assinatura
+    atualizarInterface(assinatura)
   }
 
   botao.addEventListener('click', async function () {
@@ -147,8 +246,17 @@
 
       try {
         var resposta = await fetch('/push/testar', { method: 'POST' })
-        if (!resposta.ok) throw new Error('Falha no teste.')
-        avisar('Notificação de teste enviada.')
+        var dados = await resposta.json().catch(function () { return null })
+
+        if (!resposta.ok) {
+          throw new Error((dados && dados.erro) || 'Falha no teste.')
+        }
+
+        if (!dados || dados.enviados === 0) {
+          avisar('Nenhuma assinatura ativa. Reative as notificações.')
+        } else {
+          avisar('Notificação de teste enviada.')
+        }
       } catch (erro) {
         console.error('Erro no teste de push:', erro)
         avisar('Não foi possível enviar a notificação de teste.')
@@ -158,15 +266,7 @@
     })
   }
 
-  obterRegistro()
-    .then(function (registroSw) {
-      return registroSw.pushManager.getSubscription()
-    })
-    .then(function (assinatura) {
-      assinaturaAtual = assinatura
-      atualizarInterface(assinatura)
-    })
-    .catch(function (erro) {
-      console.error('Serviço de push indisponível:', erro)
-    })
+  sincronizar().catch(function (erro) {
+    console.error('Serviço de push indisponível:', erro)
+  })
 })()

@@ -58,6 +58,22 @@ export default class PushController {
     }
   }
 
+  async status(req, res) {
+    try {
+      const { endpoint } = req.body || {}
+
+      if (!endpoint) {
+        return res.status(400).json({ ok: false, erro: 'Endpoint ausente.' })
+      }
+
+      const inscrito = Boolean(await PushSubscription.exists({ endpoint }))
+      res.json({ ok: true, inscrito })
+    } catch (erro) {
+      console.error('Erro ao consultar assinatura push:', erro)
+      res.status(500).json({ ok: false, erro: 'Erro ao consultar a assinatura.' })
+    }
+  }
+
   async testar(req, res) {
     try {
       const resultado = await enviarNotificacao({

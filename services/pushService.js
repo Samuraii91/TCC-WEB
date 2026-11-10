@@ -26,11 +26,18 @@ export async function enviarNotificacao(payload) {
       if ([401, 403, 404, 410].includes(erro.statusCode)) {
         await PushSubscription.deleteOne({ _id: assinatura._id })
         removidos++
+        console.warn('[push] Assinatura inválida removida:', erro.statusCode)
       } else {
         console.error('[push] Falha ao enviar notificação:', erro.statusCode || erro.message)
       }
     }
   }))
+
+  if (assinaturas.length === 0) {
+    console.warn('[push] Nenhuma assinatura cadastrada; notificação não enviada.')
+  } else {
+    console.log(`[push] Notificações: ${enviados} enviada(s), ${removidos} removida(s) de ${assinaturas.length} assinatura(s).`)
+  }
 
   return { enviados, removidos }
 }

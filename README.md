@@ -294,12 +294,19 @@ sem serviço externo.
 - **Service Worker** — `public/sw.js` exibe a notificação e, ao clicar, foca/abre
   a página correspondente (`/contato/lst` ou `/produto/lst`).
 - **Rotas** — `GET /push/chave-publica`, `POST /push/subscribe`,
-  `POST /push/unsubscribe` e `POST /push/testar` (todas exigem login).
-- **Chaves VAPID** — localmente são geradas automaticamente em `.vapid.json`
-  (ignorado pelo Git). Em produção, defina `VAPID_PUBLIC_KEY` e
-  `VAPID_PRIVATE_KEY` no ambiente; para gerar um par novo rode
-  `npm run vapid:keys`. Sem essas variáveis, cada cold start da Vercel gera
-  chaves diferentes e invalida as inscrições antigas.
+  `POST /push/unsubscribe`, `POST /push/status` e `POST /push/testar` (todas
+  exigem login).
+- **Chaves VAPID** — as variáveis de ambiente `VAPID_PUBLIC_KEY` e
+  `VAPID_PRIVATE_KEY` têm prioridade. Se não existirem, o app carrega as chaves
+  persistidas no modelo `VapidKey` (coleção `vapidkeys`) do MongoDB. Na
+  primeira execução, usa o
+  `.vapid.json` local (ignorado pelo Git) ou gera um par novo e **salva no
+  banco**. Assim as chaves sobrevivem a deploys/restarts do Render e da Vercel.
+  Para gerar um par novo manualmente rode `npm run vapid:keys`.
+- **Renovação automática** — se a chave pública do servidor mudar,
+  `public/js/push.js` desfaz a inscrição antiga, assina novamente e salva a nova
+  assinatura. Se o navegador exigir interação, clique em **"Ativar
+  notificações"** duas vezes (desativar e ativar de novo).
 - **Requisito do navegador** — push só funciona em `https://` ou em
   `http://localhost`. Em navegadores sem suporte, o botão fica desabilitado.
 
