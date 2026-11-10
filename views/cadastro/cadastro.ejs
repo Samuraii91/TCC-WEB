@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro de Usuário - Novo Belém</title>
+  <title>Adicionar Administrador - Novo Belém</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -151,8 +151,8 @@
 <body>
   <div class="register-box">
     <img src="/img/logo.png" alt="Logo Novo Belém" class="register-logo">
-    <h2>Cadastro de Usuário</h2>
-    <p class="subtitulo">Crie sua conta de acesso ao painel</p>
+    <h2>Deseja adicionar um administrador?</h2>
+    <p class="subtitulo">Informe o e-mail, a senha e a senha do dono</p>
 
     <% if (erro) { %>
       <p class="msg-erro"><%= erro %></p>
@@ -163,10 +163,10 @@
     <% } %>
 
     <form action="/register" method="POST">
-      <input type="text" name="nome" placeholder="Nome completo" required />
-      <input type="email" name="email" placeholder="E-mail" required />
-      <input type="password" name="senha" placeholder="Senha" required />
-      <button type="submit" class="btn-cadastrar">Cadastrar</button>
+      <input type="email" name="email" placeholder="E-mail do administrador" required autocomplete="email" />
+      <input type="password" name="senha" placeholder="Senha do administrador" required autocomplete="new-password" />
+      <input type="password" name="senhaDono" placeholder="Senha do dono" required autocomplete="off" />
+      <button type="submit" class="btn-cadastrar">Adicionar administrador</button>
     </form>
 
     <p class="login-link">Já tem uma conta? <a href="/login">Entrar</a></p>

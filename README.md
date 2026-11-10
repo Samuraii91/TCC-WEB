@@ -69,7 +69,7 @@ Não há variáveis de ambiente para o banco — a URI está no código (ver
 ├── routes/             definição de endpoints
 ├── middlewares/auth.js  guarda verificarLogin
 ├── views/              templates EJS
-│   ├── site/           site público (index, admin)
+│   ├── site/           site público (index)
 │   ├── usuario/        login
 │   ├── cadastro/       registro
 │   ├── produto/        CRUD + relatorio (impressão)
@@ -106,7 +106,9 @@ Página única com navegação por âncoras.
   enviada por `POST /site/avaliar` e **uma avaliação por navegador**
   (guardada em `localStorage`).
 - **Orçamento** — carrinho de itens com quantidade **limitada ao estoque
-  disponível**, subtotal por linha e total calculado no cliente. Ao enviar:
+  disponível**, subtotal por linha e total calculado no cliente. A quantidade
+  pode ser digitada ou apagada livremente (passo 1); o valor é normalizado
+  entre 1 e o estoque ao sair do campo ou ao enviar. Ao enviar:
   1. `POST /site/contato` grava no MongoDB com o `total` calculado;
   2. o form é submetido ao **Formspree** para envio por e-mail.
 - **Só aparece o que tem estoque** — `Controller.siteIndex` filtra
@@ -142,17 +144,19 @@ Layout com **sidebar fixa** que vira menu off-canvas abaixo de 900px.
 
 ### 4.3 Autenticação
 
-- `GET /admin` → tela com senha fixa → redireciona para `/login`.
 - `GET /login` + `POST /login` → compara a senha com **bcrypt**, grava
   `req.session.usuario = { id, nome, email }` → `/dashboard`.
 - `GET /logout` → destrói a sessão.
-- `GET/POST /register` → cadastro com hash (`bcrypt.genSalt(10)`).
+- `GET/POST /register` → cadastro de administrador **público**, mas exige a
+  **senha do dono** (`senhaDono`, padrão `1502`, configurável em `SENHA_DONO`).
+  O nome é derivado do e-mail e a senha é gravada com hash
+  (`bcrypt.genSalt(10)`).
 
 O guarda `middlewares/auth.js` (`verificarLogin`) é aplicado em
 `/produto`, `/categoria`, `/servico`, `/entrega`, `/contato` e em `/dashboard`.
 
-**Não existe controle de perfil/papel:** qualquer usuário criado em
-`/register` tem acesso total ao painel.
+**Não existe controle de perfil/papel:** qualquer administrador criado em
+`/register` (com a senha do dono) tem acesso total ao painel.
 
 ---
 
@@ -190,7 +194,7 @@ relatório e do badge "em estoque" do site.
 | POST | `/site/contato` | Grava o orçamento |
 | POST | `/site/avaliar` | Nota de 1 a 5 no produto |
 | GET | `/healthcheck` | Retorna `OK` (usado pelo Render) |
-| GET/POST | `/register` | Cadastro |
+| GET/POST | `/register` | Adicionar administrador (exige senha do dono) |
 
 ### Autenticadas
 | Prefixo | Endpoints |
@@ -266,7 +270,7 @@ abrindo pelo botão flutuante ♿.
   `index.js` sem healthcheck e sem autoping.
 
 Variáveis de ambiente reconhecidas: `PORT`, `RENDER_EXTERNAL_URL`,
-`MONGODB_URI`, `SESSION_SECRET`, `ADMIN_SENHA`, `VAPID_PUBLIC_KEY`,
+`MONGODB_URI`, `SESSION_SECRET`, `SENHA_DONO`, `VAPID_PUBLIC_KEY`,
 `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT`.
 
 ### 9.1 Notificações push (Web Push)
@@ -316,10 +320,10 @@ seleção, o cancelamento da leitura e o overflow em telas pequenas.
    `process.env.MONGODB_URI`.** Mesmo depois de remover do código, o histórico
    do Git continua expondo a senha antiga.
 
-2. **Senha do `/admin` fixa no código.**
-   `controllers/controller.js` compara a senha com a literal `'admin1502'`,
-   em texto puro, sem hash, sem rate limit e sem efeito na sessão — é apenas
-   uma tela intermediária antes do `/login`.
+2. **Senha do dono fixa no código.**
+   `controllers/authController.js` compara `senhaDono` com a literal `'1502'`
+   (quando `SENHA_DONO` não está definida), em texto puro e sem rate limit.
+   Essa senha autoriza a criação de novos administradores em `/register`.
 
 3. **Segredo de sessão fixo.**
    `'chavesecreta'` em `index.js:34` e `api/index.js:34`. Com esse segredo,
@@ -329,8 +333,8 @@ seleção, o cancelamento da leitura e o overflow em telas pequenas.
 4. **Sem proteção CSRF** em nenhum formulário POST, e o cookie de sessão
    fica no padrão do `express-session` (sem `sameSite`/`secure` explícitos).
 
-5. **Sem controle de perfil.** Qualquer usuário cadastrado em `/register` tem
-   acesso total ao painel administrativo.
+5. **Sem controle de perfil.** Qualquer administrador cadastrado em `/register`
+   (mediante a senha do dono) tem acesso total ao painel administrativo.
 
 6. **Upload sem validação.** O `multer` não tem `limits` (tamanho) nem
    `fileFilter` (tipo) — a única restrição é o `accept="image/*"` do HTML,

@@ -13,14 +13,33 @@ export default class AuthController {
     res.render("cadastro/cadastro", { erro: null, sucesso: null });
   };
 
-  // 🔹 Cadastrar novo usuário
+  // 🔹 Cadastrar novo administrador (exige a senha do dono)
   register = async (req, res) => {
-    const { nome, email, senha } = req.body;
+    const email = String(req.body.email || "").trim();
+    const senha = String(req.body.senha || "");
+    const senhaDono = String(req.body.senhaDono || "");
+    const nome = String(req.body.nome || "").trim() || email.split("@")[0] || "Administrador";
 
     try {
-      if (!nome || !email || !senha) {
+      if (!email || !senha || !senhaDono) {
         return res.render("cadastro/cadastro", {
-          erro: "Preencha nome, e-mail e senha.",
+          erro: "Preencha e-mail, senha e senha do dono.",
+          sucesso: null,
+        });
+      }
+
+      const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailValido) {
+        return res.render("cadastro/cadastro", {
+          erro: "Informe um e-mail válido.",
+          sucesso: null,
+        });
+      }
+
+      const senhaDonoCorreta = process.env.SENHA_DONO || "1502";
+      if (senhaDono !== senhaDonoCorreta) {
+        return res.render("cadastro/cadastro", {
+          erro: "Senha do dono incorreta.",
           sucesso: null,
         });
       }

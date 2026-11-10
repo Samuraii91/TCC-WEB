@@ -122,24 +122,6 @@ export default class Controller {
     }
   }
 
-  // 🔹 Tela de senha fixa da área administrativa
-  adminPage = (req, res) => {
-    res.render('site/admin', { erro: null })
-  }
-
-  // 🔹 Verifica a senha fixa e, se correta, leva para a tela de login já existente
-  adminLogin = (req, res) => {
-    const { senha } = req.body
-
-    const senhaAdmin = process.env.ADMIN_SENHA || 'admin1502'
-
-    if (senha === senhaAdmin) {
-      return res.redirect('/login')
-    }
-
-    res.render('site/admin', { erro: 'Senha incorreta!' })
-  }
-
   // 🔹 Painel administrativo com indicadores gerais
   dashboardPage = async (req, res) => {
     try {

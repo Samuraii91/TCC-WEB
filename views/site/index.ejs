@@ -852,7 +852,7 @@
             if (inputTotal) inputTotal.value = total.toFixed(2);
         }
 
-        function atualizarSubtotal(linha) {
+        function atualizarSubtotal(linha, normalizar) {
             const select = linha.querySelector(".select-item-orcamento");
             const qtdInput = linha.querySelector(".qtd-item-orcamento");
             const precoHidden = linha.querySelector(".preco-item-orcamento");
@@ -864,7 +864,7 @@
             if (!dados) {
                 precoHidden.value = "";
                 qtdInput.max = "1";
-                qtdInput.value = "1";
+                if (normalizar || !qtdInput.value) qtdInput.value = "1";
                 subtotalEl.textContent = formatarMoeda(0);
                 estoqueEl.textContent = "";
                 atualizarOpcoesDisponiveis();
@@ -873,11 +873,18 @@
             }
 
             precoHidden.value = dados.preco;
-            qtdInput.max = dados.quantidade;
-            let qtd = parseInt(qtdInput.value, 10);
-            if (!qtd || qtd < 1) qtd = 1;
+            qtdInput.max = String(dados.quantidade);
+            qtdInput.step = "1";
+
+            const valorDigitado = qtdInput.value.trim();
+            let qtd = valorDigitado === "" ? 0 : parseInt(valorDigitado, 10);
+            if (!Number.isFinite(qtd) || qtd < 0) qtd = 0;
             if (qtd > dados.quantidade) qtd = dados.quantidade;
-            qtdInput.value = qtd;
+
+            if (normalizar) {
+                if (qtd < 1) qtd = 1;
+                qtdInput.value = String(qtd);
+            }
 
             subtotalEl.textContent = formatarMoeda(dados.preco * qtd);
             estoqueEl.textContent = "Estoque: " + dados.quantidade;
@@ -921,6 +928,9 @@
             qtdInput.className = "qtd-item-orcamento";
             qtdInput.name = "quantidadeItem[]";
             qtdInput.min = "1";
+            qtdInput.step = "1";
+            qtdInput.inputMode = "numeric";
+            qtdInput.setAttribute("aria-label", "Quantidade");
             qtdInput.value = "1";
 
             const precoHidden = document.createElement("input");
@@ -954,11 +964,13 @@
             linha.appendChild(estoqueEl);
             linha.appendChild(btnRemover);
 
-            select.addEventListener("change", () => atualizarSubtotal(linha));
-            qtdInput.addEventListener("input", () => atualizarSubtotal(linha));
+            select.addEventListener("change", () => atualizarSubtotal(linha, true));
+            qtdInput.addEventListener("input", () => atualizarSubtotal(linha, false));
+            qtdInput.addEventListener("change", () => atualizarSubtotal(linha, true));
+            qtdInput.addEventListener("blur", () => atualizarSubtotal(linha, true));
 
             itensOrcamento.appendChild(linha);
-            atualizarSubtotal(linha);
+            atualizarSubtotal(linha, true);
             return linha;
         }
 
@@ -975,7 +987,7 @@
                 });
                 if (linhaVazia) {
                     linhaVazia.querySelector(".select-item-orcamento").value = nome;
-                    atualizarSubtotal(linhaVazia);
+                    atualizarSubtotal(linhaVazia, true);
                 } else {
                     criarLinhaOrcamento(nome);
                 }
@@ -1193,9 +1205,13 @@
                     if (select.value !== "") {
                         algumProduto = true;
                         const dados = dadosProdutos[select.value];
-                        let qtd = parseInt(qtdInput.value, 10) || 1;
-                        if (dados && qtd > dados.quantidade) qtd = dados.quantidade;
-                        qtdInput.value = qtd;
+                        let qtd = parseInt(qtdInput.value, 10);
+                        if (!Number.isFinite(qtd) || qtd < 1) qtd = 1;
+                        if (dados && Number.isFinite(dados.quantidade)) {
+                            qtd = Math.min(qtd, dados.quantidade);
+                        }
+                        if (qtd < 1) qtd = 1;
+                        qtdInput.value = String(qtd);
                     }
                 });
 
