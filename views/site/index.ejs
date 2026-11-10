@@ -256,6 +256,7 @@
                 <form class="formulario" action="https://formspree.io/f/xrbwqlzb" method="POST">
                     <input type="hidden" name="_replyto" value="profevinicius@gmail.com">
                     <input type="hidden" name="_subject" value="Novo Contato do Site Novo Belém">
+                    <input type="hidden" name="clientId" id="clientId" value="">
 
                     <div class="form-group">
                         <label for="nome">Nome *</label>
@@ -432,6 +433,16 @@
         function removerAcentos(texto) {
             if (!texto) return "";
             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        // Identificador único do orçamento: evita duplicar o registro em reenvios.
+        const campoClientId = document.getElementById("clientId");
+        if (campoClientId && !campoClientId.value) {
+            if (window.crypto && typeof window.crypto.randomUUID === "function") {
+                campoClientId.value = window.crypto.randomUUID();
+            } else {
+                campoClientId.value = "orc-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10);
+            }
         }
 
         const inputPesquisa = document.getElementById("pesquisa");
@@ -1194,8 +1205,13 @@
         // ----- Salva o orçamento no banco e continua enviando por e-mail (Formspree) -----
         const formContato = document.querySelector(".formulario");
         if (formContato) {
+            const botaoEnviar = formContato.querySelector('button[type="submit"]');
+            const textoOriginalBotao = botaoEnviar ? botaoEnviar.textContent : "";
+            let enviando = false;
+
             formContato.addEventListener("submit", async function (e) {
                 e.preventDefault();
+                if (enviando) return;
 
                 const linhas = itensOrcamento.querySelectorAll(".item-orcamento");
                 let algumProduto = false;
@@ -1222,18 +1238,63 @@
                     if (primeira) primeira.querySelector(".select-item-orcamento").focus();
                     return;
                 }
+
+                // Recalcula o total depois de normalizar as quantidades.
+                calcularTotal();
                 erroOrcamento.style.display = "none";
+                enviando = true;
+
+                if (botaoEnviar) {
+                    botaoEnviar.disabled = true;
+                    botaoEnviar.textContent = "Enviando...";
+                }
+
+                const controlador = typeof AbortController !== "undefined" ? new AbortController() : null;
+                const timer = controlador ? setTimeout(() => controlador.abort(), 20000) : null;
+                let salvo = false;
 
                 try {
-                    await fetch("/site/contato", {
+                    const resposta = await fetch("/site/contato", {
                         method: "POST",
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: new URLSearchParams(new FormData(formContato))
+                        body: new URLSearchParams(new FormData(formContato)),
+                        signal: controlador ? controlador.signal : undefined
                     });
-                } catch (err) {
-                    console.error("Erro ao salvar o contato no banco:", err);
+
+                    let dados = null;
+                    try {
+                        dados = await resposta.json();
+                    } catch (erroJson) {
+                        dados = null;
+                    }
+
+                    if (!resposta.ok || !dados || dados.ok !== true) {
+                        throw new Error((dados && dados.erro) || "Não foi possível salvar o orçamento. Tente novamente.");
+                    }
+
+                    salvo = true;
+                } catch (erro) {
+                    const mensagemErro = erro && erro.name === "AbortError"
+                        ? "O servidor demorou para responder. Verifique sua conexão e tente novamente."
+                        : (erro && erro.message) || "Não foi possível salvar o orçamento. Tente novamente.";
+                    erroOrcamento.textContent = mensagemErro;
+                    erroOrcamento.style.display = "block";
+                    erroOrcamento.scrollIntoView({ behavior: "smooth", block: "center" });
+                    console.error("Erro ao salvar o orçamento no banco:", erro);
+                } finally {
+                    if (timer) clearTimeout(timer);
+                    enviando = false;
+                    if (botaoEnviar) {
+                        botaoEnviar.disabled = false;
+                        botaoEnviar.textContent = textoOriginalBotao;
+                    }
                 }
-                formContato.submit();
+
+                // Só envia por e-mail depois de confirmar que o orçamento foi salvo no banco.
+                if (salvo) {
+                    if (botaoEnviar) botaoEnviar.textContent = "Enviando e-mail...";
+                    formContato.submit();
+                }
             });
         }
 

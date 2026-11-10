@@ -52,60 +52,145 @@ export default class Controller {
 
   // 🔹 Salva o formulário de contato/orçamento no banco (o e-mail continua indo pelo Formspree)
   salvarContato = async (req, res) => {
+    const normalizarTexto = (valor, limite) => {
+      if (typeof valor !== 'string' && typeof valor !== 'number') return ''
+      return String(valor).trim().slice(0, limite)
+    }
+
+    const normalizarLista = (valor) => {
+      if (Array.isArray(valor)) return valor
+      if (valor === undefined || valor === null) return []
+      return [valor]
+    }
+
     try {
-      const { nome, email, telefone, produto, quantidade, mensagem } = req.body
+      const nome = normalizarTexto(req.body.nome, 120)
+      const email = normalizarTexto(req.body.email, 160)
+      const telefone = normalizarTexto(req.body.telefone, 40)
+      const mensagem = normalizarTexto(req.body.mensagem, 2000)
+      const clientId = normalizarTexto(req.body.clientId, 80)
 
       if (!nome || !email || !telefone) {
-        return res.status(400).json({ ok: false, erro: 'Nome, e-mail e telefone são obrigatórios' })
+        return res.status(400).json({ ok: false, erro: 'Nome, e-mail e telefone são obrigatórios.' })
       }
 
-      const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-      if (!emailValido) {
-        return res.status(400).json({ ok: false, erro: 'E-mail inválido' })
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ ok: false, erro: 'E-mail inválido.' })
       }
 
-      const nomesProdutos = typeof req.body.produtoItem === 'string'
-        ? [req.body.produtoItem]
-        : (req.body.produtoItem || [])
-      const quantidades = typeof req.body.quantidadeItem === 'string'
-        ? [req.body.quantidadeItem]
-        : (req.body.quantidadeItem || [])
-      const precos = typeof req.body.precoItem === 'string'
-        ? [req.body.precoItem]
-        : (req.body.precoItem || [])
+      // Se o mesmo formulário for reenviado (timeout, duplo clique), não duplica o orçamento.
+      if (clientId) {
+        const existente = await Contato.findOne({ clientId }).lean()
+        if (existente) {
+          return res.status(200).json({ ok: true, jaSalvo: true })
+        }
+      }
 
-      const itens = nomesProdutos
-        .map((nomeItem, i) => {
-          if (!nomeItem) return null
-          return {
-            produto: nomeItem,
-            quantidade: Number(quantidades[i]) || 1,
-            preco: Number(precos[i]) || 0
-          }
+      const nomesProdutos = normalizarLista(req.body.produtoItem)
+      const quantidades = normalizarLista(req.body.quantidadeItem)
+
+      const pedidos = new Map()
+      nomesProdutos.forEach((nomeItem, i) => {
+        const nomeLimpo = String(nomeItem || '').trim()
+        if (!nomeLimpo) return
+        const qtd = Math.max(1, Math.floor(Number(quantidades[i]) || 1))
+        pedidos.set(nomeLimpo, (pedidos.get(nomeLimpo) || 0) + qtd)
+      })
+
+      // Compatibilidade com o formato antigo (um único produto por formulário).
+      const produtoAntigo = normalizarTexto(req.body.produto, 200)
+      if (pedidos.size === 0 && produtoAntigo) {
+        const qtd = Math.max(1, Math.floor(Number(req.body.quantidade) || 1))
+        pedidos.set(produtoAntigo, qtd)
+      }
+
+      if (pedidos.size === 0) {
+        return res.status(400).json({ ok: false, erro: 'Selecione ao menos um produto para solicitar o orçamento.' })
+      }
+
+      // Usa sempre o preço e o estoque atuais do banco, nunca os valores enviados pelo cliente.
+      const produtosCadastrados = await Produto.find()
+      const produtosPorNome = new Map(
+        produtosCadastrados.map(produto => [String(produto.nome || '').trim(), produto])
+      )
+
+      const itens = []
+      const indisponiveis = []
+
+      for (const [nomePedido, qtdPedida] of pedidos) {
+        const produto = produtosPorNome.get(nomePedido)
+
+        if (!produto) {
+          indisponiveis.push(nomePedido)
+          continue
+        }
+
+        const estoque = Number(produto.quantidade)
+        if (Number.isFinite(estoque) && estoque <= 0) {
+          indisponiveis.push(produto.nome)
+          continue
+        }
+
+        const quantidade = Number.isFinite(estoque)
+          ? Math.min(qtdPedida, Math.max(1, Math.floor(estoque)))
+          : qtdPedida
+
+        itens.push({
+          produto: produto.nome,
+          quantidade,
+          preco: Number(produto.preco) || 0
         })
-        .filter(Boolean)
+      }
+
+      if (indisponiveis.length > 0) {
+        return res.status(400).json({
+          ok: false,
+          erro: `Produto(s) indisponível(is): ${indisponiveis.join(', ')}. Atualize a página e tente novamente.`
+        })
+      }
+
+      if (itens.length === 0) {
+        return res.status(400).json({ ok: false, erro: 'Nenhum produto válido foi selecionado.' })
+      }
 
       const total = itens.reduce((soma, item) => soma + (item.preco * item.quantidade), 0)
 
-      const contato = await Contato.create({
+      const dadosContato = {
         nome,
         email,
         telefone,
-        produto: produto || (itens[0] ? itens[0].produto : undefined),
-        quantidade: Number(quantidade) || (itens[0] ? itens[0].quantidade : undefined),
-        itens: itens.length > 0 ? itens : undefined,
-        total: total > 0 ? total : undefined,
-        mensagem
-      })
+        produto: itens[0].produto,
+        quantidade: itens[0].quantidade,
+        itens,
+        total,
+        mensagem: mensagem || undefined,
+        clientId: clientId || undefined
+      }
 
-      const resumoItens = itens.length > 0
-        ? itens.map(item => `${item.quantidade}x ${item.produto}`).join(', ')
-        : (produto || '')
+      let contato
+      for (let tentativa = 1; tentativa <= 2; tentativa++) {
+        try {
+          contato = await Contato.create(dadosContato)
+          break
+        } catch (erroCriacao) {
+          if (clientId && erroCriacao && erroCriacao.code === 11000) {
+            const existente = await Contato.findOne({ clientId }).lean()
+            if (existente) {
+              return res.status(200).json({ ok: true, jaSalvo: true })
+            }
+          }
+
+          if (tentativa === 2) throw erroCriacao
+          await new Promise(resolver => setTimeout(resolver, 250))
+        }
+      }
+
+      const resumoItens = itens.map(item => `${item.quantidade}x ${item.produto}`).join(', ')
 
       try {
         await enviarNotificacao({
           title: 'Novo orçamento recebido',
-          body: `${nome} enviou um orçamento${total > 0 ? ' de R$ ' + total.toFixed(2) : ''}${resumoItens ? ': ' + resumoItens : ''}.`,
+          body: `${nome} enviou um orçamento${total > 0 ? ' de R$ ' + total.toFixed(2) : ''}: ${resumoItens}.`,
           icon: '/img/logo.png',
           badge: '/img/logo.png',
           url: '/contato/lst',
@@ -115,10 +200,10 @@ export default class Controller {
         console.error('Erro ao enviar notificação de orçamento:', erroPush)
       }
 
-      res.status(200).json({ ok: true })
+      return res.status(200).json({ ok: true, protocolo: contato._id })
     } catch (erro) {
-      console.log(erro)
-      res.status(500).json({ ok: false, erro: 'Erro ao salvar o contato' })
+      console.error('Erro ao salvar orçamento:', erro)
+      return res.status(500).json({ ok: false, erro: 'Não foi possível salvar o orçamento. Tente novamente.' })
     }
   }
 
@@ -151,7 +236,7 @@ export default class Controller {
         Entrega.find(),
         Contato.countDocuments(),
         Contato.countDocuments({ status: 'Aguardando' }),
-        Contato.find().sort({ createdAt: -1 }).limit(5),
+        Contato.find().sort({ createdAt: -1 }).limit(10),
         Contato.find()
       ])
 

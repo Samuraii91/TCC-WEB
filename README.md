@@ -109,8 +109,13 @@ Página única com navegação por âncoras.
   disponível**, subtotal por linha e total calculado no cliente. A quantidade
   pode ser digitada ou apagada livremente (passo 1); o valor é normalizado
   entre 1 e o estoque ao sair do campo ou ao enviar. Ao enviar:
-  1. `POST /site/contato` grava no MongoDB com o `total` calculado;
-  2. o form é submetido ao **Formspree** para envio por e-mail.
+  1. `POST /site/contato` grava no MongoDB; o servidor **recalcula preços,
+     quantidades e total** com os dados atuais do banco e valida o estoque;
+  2. só depois do `200` o form é submetido ao **Formspree** para envio por
+     e-mail. Se o banco falhar, o cliente mostra o erro e **não** envia o
+     e-mail, evitando orçamento "perdido" no painel.
+  Um `clientId` (UUID em campo oculto) torna o envio idempotente: reenvios por
+  timeout ou duplo clique não criam registros duplicados.
 - **Só aparece o que tem estoque** — `Controller.siteIndex` filtra
   `quantidade > 0`.
 - **Tema claro/escuro** com persistência em `localStorage` e respeito inicial a
@@ -126,7 +131,8 @@ Layout com **sidebar fixa** que vira menu off-canvas abaixo de 900px.
   entregas, entregas pendentes, produtos em baixo estoque, orçamentos,
   orçamentos aguardando) e **3 gráficos Chart.js** montados no servidor:
   produtos por categoria, entregas por status, orçamentos por status.
-  Mais listas das últimas 5 entregas e dos últimos 5 orçamentos.
+  Mais listas das últimas 5 entregas e dos últimos 10 orçamentos, com link
+  para a lista completa.
 - **Produtos** — CRUD completo, filtro ao vivo na tabela, upload de imagem.
   Ao abrir a lista, um `alert` destaca produtos em falta/baixo estoque.
 - **Relatório de estoque** (`/produto/relatorio`) — página otimizada para
@@ -171,7 +177,7 @@ Seis coleções (`models/`).
 | **Produto** | `nome`, `descricao`, `preco`, `quantidade` (default 0), `categoria` (ref Categoria), `imagemBase64`, `mimetype`, `avaliacoes[]` | `timestamps`; `avaliacoes` é array de notas 1–5 (validado só no controller) |
 | **Servico** | `nome`, `descricao`, `preco` | sem `timestamps` |
 | **Entrega** | `itens[]` (`produto` ref + `quantidade`), `cliente`, `endereco`, `status` (enum), `data` | subdocumento com `_id: false` |
-| **Contato** | `nome`, `email`, `telefone`, `produto`, `quantidade`, `itens[]`, `total`, `mensagem`, `status` (enum) | representa o **orçamento** |
+| **Contato** | `nome`, `email`, `telefone`, `produto`, `quantidade`, `itens[]`, `total`, `mensagem`, `clientId`, `status` (enum) | representa o **orçamento**; `clientId` é único e esparso (idempotência) |
 
 **Imagens** — não há pasta de uploads. O `multer` roda em `memoryStorage` e o
 buffer vira string Base64 dentro do documento, renderizado como
@@ -350,14 +356,16 @@ seleção, o cancelamento da leitura e o overflow em telas pequenas.
    link ou preload na página pode disparar a remoção.
 
 10. **Tratamento de erro inconsistente.** `ServicoController` responde erro de
-    banco com **HTTP 200**; `CategoriaController`, `EntregaController` e
-    `ContatoController` não têm `try/catch` nenhum. Não há middleware de
-    404/500 e nem `next(err)`.
+    banco com **HTTP 200**; `CategoriaController` e `EntregaController` ainda
+    não têm `try/catch` em todos os métodos. O `index.js` tem middleware de
+    404/500, mas nem todo controller usa `next(err)`.
 
 11. **Validação de entrada quase inexistente.** Não há biblioteca de
-    validação no projeto; só atributos HTML5 no cliente. Os `findByIdAndUpdate`
-    rodam **sem `runValidators: true`**, então as regras do schema não são
-    aplicadas na edição.
+    validação no projeto; só atributos HTML5 no cliente. A exceção é
+    `POST /site/contato`, que valida nome/e-mail/telefone, confere produtos e
+    estoque e recalcula o total no servidor. Os `findByIdAndUpdate` rodam
+    **sem `runValidators: true`**, então as regras do schema não são aplicadas
+    na edição.
 
 ---
 

@@ -44,7 +44,9 @@ export default class ContatoController {
           { nome: regex },
           { email: regex },
           { telefone: regex },
-          { produto: regex }
+          { produto: regex },
+          { 'itens.produto': regex },
+          { mensagem: regex }
         ]
       }).sort({ createdAt: -1 })
       res.render('contato/lst', { contatos })

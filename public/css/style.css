@@ -740,6 +740,22 @@ a {
   padding: 14px 0;
 }
 
+.ver-todos-orcamentos {
+  margin: 14px 0 0;
+  text-align: right;
+  font-size: 13.5px;
+}
+
+.ver-todos-orcamentos a {
+  color: var(--ciano);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ver-todos-orcamentos a:hover {
+  text-decoration: underline;
+}
+
 /* ======================================================
    TOPO DA LISTAGEM
 ====================================================== */

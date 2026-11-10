@@ -36,6 +36,12 @@ const __dirname = dirname(__filename);
 app.use(express.static(join(__dirname, '/public')));
 app.set('views', join(__dirname, '/views'));
 
+// HTML dinâmico sempre revalidado: evita formulário antigo em cache sem o envio ao banco
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-cache');
+  next();
+});
+
 // Configuração de sessão
 app.use(session({
   secret: process.env.SESSION_SECRET || 'chavesecreta',

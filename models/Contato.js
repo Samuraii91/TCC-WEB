@@ -13,6 +13,7 @@ const ContatoSchema = new mongoose.Schema({
   }],
   total: { type: Number },
   mensagem: { type: String },
+  clientId: { type: String, unique: true, sparse: true },
   status: {
     type: String,
     enum: ['Aguardando', 'Respondido via WhatsApp', 'Respondido via Email', 'Não respondido'],

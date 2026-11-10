@@ -23,7 +23,7 @@ export async function enviarNotificacao(payload) {
       await webpush.sendNotification(inscricao, JSON.stringify(payload))
       enviados++
     } catch (erro) {
-      if (erro.statusCode === 404 || erro.statusCode === 410) {
+      if ([401, 403, 404, 410].includes(erro.statusCode)) {
         await PushSubscription.deleteOne({ _id: assinatura._id })
         removidos++
       } else {
