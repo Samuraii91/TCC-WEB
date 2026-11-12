@@ -48,9 +48,10 @@ node index.js
 Porta via `process.env.PORT` (padrão `3001`).
 
 **A conexão com o banco é feita por efeito colateral:** `config/conexao.js` usa
-`await mongoose.connect(...)` no topo do módulo e é importado por `Produto.js`,
-`Categoria.js` e `Contato.js`. O `index.js` chama `app.listen()` de forma
-síncrona, sem esperar o banco conectar.
+`await mongoose.connect(...)` no topo do módulo e é importado por todos os
+modelos. Como o ESM aguarda `top-level await`, o `index.js` só executa
+`app.listen()` depois que a conexão e as chaves VAPID (`config/webpush.js`)
+estiverem prontas.
 
 Não há variáveis de ambiente para o banco — a URI está no código (ver
 [Segurança](#11-segurança--problemas-conhecidos)).
@@ -64,7 +65,7 @@ Não há variáveis de ambiente para o banco — a URI está no código (ver
 ├── api/index.js        entrada (Vercel) — quase duplica do index.js
 ├── vercel.json         configuração da Vercel
 ├── config/conexao.js   conexão MongoDB
-├── models/             6 esquemas Mongoose
+├── models/             8 esquemas Mongoose
 ├── controllers/        lógica de negócio
 ├── routes/             definição de endpoints
 ├── middlewares/auth.js  guarda verificarLogin
@@ -83,7 +84,9 @@ Não há variáveis de ambiente para o banco — a URI está no código (ver
 └── public/
     ├── css/style.css       painel administrativo (tema escuro)
     ├── css/styleSite.css   site público (tema claro + escuro)
-    └── img/               logo e fotos de categorias
+    ├── js/push.js          ativação/renovação da inscrição push
+    ├── sw.js               Service Worker (exibe notificações)
+    └── img/                logo e fotos de categorias
 ```
 
 ---
@@ -168,7 +171,7 @@ O guarda `middlewares/auth.js` (`verificarLogin`) é aplicado em
 
 ## 5. Banco de dados
 
-Seis coleções (`models/`).
+Oito coleções (`models/`).
 
 | Modelo | Campos principais | Observações |
 |---|---|---|
@@ -178,6 +181,8 @@ Seis coleções (`models/`).
 | **Servico** | `nome`, `descricao`, `preco` | sem `timestamps` |
 | **Entrega** | `itens[]` (`produto` ref + `quantidade`), `cliente`, `endereco`, `status` (enum), `data` | subdocumento com `_id: false` |
 | **Contato** | `nome`, `email`, `telefone`, `produto`, `quantidade`, `itens[]`, `total`, `mensagem`, `clientId`, `status` (enum) | representa o **orçamento**; `clientId` é único e esparso (idempotência) |
+| **PushSubscription** | `endpoint` (único), `keys.p256dh`, `keys.auth`, `usuarioId`, `criadoEm` | uma inscrição por navegador/dispositivo; o `endpoint` identifica a inscrição |
+| **VapidKey** | `_id` (`"vapid"`), `publicKey`, `privateKey` | par VAPID persistido para sobreviver a deploys; `VAPID_*` do ambiente tem prioridade |
 
 **Imagens** — não há pasta de uploads. O `multer` roda em `memoryStorage` e o
 buffer vira string Base64 dentro do documento, renderizado como
@@ -212,6 +217,7 @@ relatório e do badge "em estoque" do site.
 | `/servico` | `add`, `lst`, `find`, `edt/:id`, `del/:id` |
 | `/entrega` | `add`, `lst`, `find`, `edt/:id`, `del/:id` |
 | `/contato` | `lst`, `find`, `edt/:id`, `del/:id` |
+| `/push` | `chave-publica`, `subscribe`, `unsubscribe`, `status`, `testar` |
 
 **Remoção por `GET /del/:id`** — não há `POST` de exclusão nem confirmação no
 servidor; a proteção depende do link na tela.
@@ -287,6 +293,9 @@ sem serviço externo.
 - **Ativação** — botão **"Ativar notificações"** na topbar de qualquer página do
   painel. O navegador pede permissão e a inscrição é salva em
   `PushSubscription` (endpoint + chaves `p256dh`/`auth`).
+- **Uma inscrição por navegador/dispositivo** — a mesma conta pode ter várias;
+  cada navegador/perfil precisa ser ativado separadamente. No Edge do Windows,
+  por exemplo, o endpoint é do tipo `wns2-*.notify.windows.com`.
 - **Teste** — depois de ativar, aparece o botão **"Testar"** ao lado.
 - **Disparos automáticos**:
   - novo orçamento recebido em `POST /site/contato`;
@@ -299,14 +308,19 @@ sem serviço externo.
 - **Chaves VAPID** — as variáveis de ambiente `VAPID_PUBLIC_KEY` e
   `VAPID_PRIVATE_KEY` têm prioridade. Se não existirem, o app carrega as chaves
   persistidas no modelo `VapidKey` (coleção `vapidkeys`) do MongoDB. Na
-  primeira execução, usa o
-  `.vapid.json` local (ignorado pelo Git) ou gera um par novo e **salva no
-  banco**. Assim as chaves sobrevivem a deploys/restarts do Render e da Vercel.
-  Para gerar um par novo manualmente rode `npm run vapid:keys`.
+  primeira execução, usa o `.vapid.json` local (ignorado pelo Git) ou gera um
+  par novo e **salva no banco**. Fora as variáveis de ambiente, o banco é a
+  fonte de verdade: assim as chaves sobrevivem a deploys/restarts do Render e da
+  Vercel. Para gerar um par novo manualmente rode `npm run vapid:keys`.
 - **Renovação automática** — se a chave pública do servidor mudar,
   `public/js/push.js` desfaz a inscrição antiga, assina novamente e salva a nova
   assinatura. Se o navegador exigir interação, clique em **"Ativar
   notificações"** duas vezes (desativar e ativar de novo).
+- **Diagnóstico** — `POST /push/status` informa se o endpoint do navegador está
+  salvo no servidor. `POST /push/testar` retorna `{ enviados, removidos }`; se
+  `enviados` for `0`, não há inscrição ativa. Se o teste for enviado mas a
+  notificação não aparecer, confira as permissões de notificação do site e o
+  Assistente de Foco do Windows.
 - **Requisito do navegador** — push só funciona em `https://` ou em
   `http://localhost`. Em navegadores sem suporte, o botão fica desabilitado.
 
@@ -319,7 +333,10 @@ falha. Não existe suíte, cobertura ou CI (`.github/` não existe).
 
 A verificação foi feita manualmente: renderização do EJS com dados fictícios e
 execução em navegador headless para conferir a escala de fonte, a leitura da
-seleção, o cancelamento da leitura e o overflow em telas pequenas.
+seleção, o cancelamento da leitura e o overflow em telas pequenas. Também foram
+verificados manualmente o fluxo de orçamento (cliente + servidor), a persistência
+das chaves VAPID no MongoDB e o envio real de push para uma inscrição do
+Edge/Windows.
 
 ---
 
@@ -331,7 +348,9 @@ seleção, o cancelamento da leitura e o overflow em telas pequenas.
    `config/conexao.js:3` contém usuário e senha em texto puro, e o repositório
    é público. **A credencial deve ser trocada no Atlas e movida para
    `process.env.MONGODB_URI`.** Mesmo depois de remover do código, o histórico
-   do Git continua expondo a senha antiga.
+   do Git continua expondo a senha antiga. Como a chave privada VAPID também
+   fica nessa base (`vapidkeys`), quem tiver acesso ao banco pode forjar
+   notificações push em nome do site.
 
 2. **Senha do dono fixa no código.**
    `controllers/authController.js` compara `senhaDono` com a literal `'1502'`
